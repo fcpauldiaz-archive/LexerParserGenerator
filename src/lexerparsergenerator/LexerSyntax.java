@@ -20,7 +20,7 @@ public class LexerSyntax implements RegexConstants{
     
     private final HashMap<Integer,String> cadena;
     private final String espacio = charAbrirParentesis  +" "+charCerrarParentesis+charKleene;
-    private final String ANY = this.espacio+"[ -.]"+charOr+"[@-z]"+this.espacio;
+    private final String ANY = this.espacio+"[ -.]"+charOr+"'"+charOr+"[@-z]"+this.espacio;
     private boolean output = true;
     
     private Automata letter_;
@@ -332,7 +332,7 @@ public class LexerSyntax implements RegexConstants{
             
             while (this.cadena.get(lineaActual).substring(0, indexSearch).endsWith(" "))
                 indexSearch--;
-             
+            
             boolean identifier = checkAutomata(this.ident_,this.cadena.get(lineaActual).substring(0,indexSearch));
             ///  int index1  = returnArray(identifier);
               if (!identifier){
@@ -342,15 +342,53 @@ public class LexerSyntax implements RegexConstants{
                          
         }catch(Exception e){
             LexerParserGenerator.errores.SynErr(lineaActual, "falta un =");
+            return false;
         }
         
+        int indexSearch = this.cadena.get(lineaActual).indexOf("=")+1;
         
+        boolean expr = expression(lineaActual, this.cadena.get(lineaActual).substring(indexSearch));
         
-        
-        return true;
+        return expr;
     }
     
-    
+     public boolean expression(int lineaActual,String cadenaRevisar){
+        String antesRevisar = cadenaRevisar;
+        int countOpen = this.count(antesRevisar, '<');
+        int countClose = this.count(antesRevisar, '>');
+        int openCount = this.count(antesRevisar, '(');
+        int closeClount = this.count(antesRevisar, ')');
+
+            if (countOpen !=  countClose || openCount != closeClount){
+                LexerParserGenerator.errores.SynErr(lineaActual, "Están desbalanceados los <> o los ()");
+                return false;
+            }
+        
+        
+        
+        cadenaRevisar = cadenaRevisar.replaceAll("\\{", charAbrirParentesis+"");
+        cadenaRevisar = cadenaRevisar.replaceAll("\\}", charCerrarParentesis+""+charKleene);
+        cadenaRevisar = cadenaRevisar.replaceAll("\\[", charAbrirParentesis+"");
+        cadenaRevisar = cadenaRevisar.replaceAll("\\]",charCerrarParentesis+"" +charInt);
+        cadenaRevisar = cadenaRevisar.replaceAll("\\|",charOr+"");
+        cadenaRevisar = cadenaRevisar.replaceAll("\\(",charAbrirParentesis+"");
+        cadenaRevisar = cadenaRevisar.replaceAll("\\)",charCerrarParentesis+"");
+        
+       
+        String regex;
+        
+        RegexConverter convert = new RegexConverter();
+        regex = convert.infixToPostfix(cadenaRevisar);
+       
+        if (regex.isEmpty()){
+            LexerParserGenerator.errores.SynErr(lineaActual, "Expresión mal ingresada"+"\n" + antesRevisar);
+            return false;
+        }  
+        
+      
+         
+     return true;   
+    }
     
     /**
      * Método para revisar el ScannerSpecification
