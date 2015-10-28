@@ -1,0 +1,16 @@
+COMPILER Test
+
+CHARACTERS
+letter  = 'A'..'Z' + 'a'..'z'.
+digit   = '0'..'9'.
+
+TOKENS
+ident  = letter {letter | digit}.
+ident1 = letter {digit} letter.
+number = digit {digit} | digit {digit} "..".
+S1 = "+" "+".
+S2 = "++".      
+S3 = '+' '+'.   
+X1 = "123..".   
+
+END Test.

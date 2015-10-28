@@ -1,0 +1,106 @@
+COMPILER LexerAnalyzer
+
+CHARACTERS
+
+tab           = CHR(09). 
+lf            = CHR(10). 
+cr            = CHR(13). 
+zero          = '0'.
+zeroToThree   = zero + "123" .
+octalDigit    = zero + "1234567" . 
+nonZeroDigit  = "123456789".
+digit         = '0' + nonZeroDigit .
+hexDigit      = digit + "ABCDEFabcdef" .
+letter        = 'A' .. 'Z' + 'a' .. 'z' + '$'.
+some_chars 	  = CHR(33)..CHR(39).
+escape_chars  = some_chars + "\\".
+char          = ANY - "'" - "\\" - cr - lf.
+stringChar    = ANY - "\"" - "\\"- cr - lf.
+
+KEYWORDS
+
+if 		= "if".
+while   = "while".
+boolean = "boolean".
+byte    = "byte".
+char    = "char".
+class   = "class".
+double  = "double".
+false   = "false".
+final   = "final".
+float   = "float".
+int     = "int".
+long    = "long".
+new     = "new".
+null    = "null".
+short   = "short".
+static  = "static".
+super   = "super".
+this    = "this".
+true    = "true".
+void    = "void".
+colon   = ":".
+comma   = ",".
+dec     = "--".
+dot     = ".".
+inc     = "++".
+lbrace  = "{".
+lbrack  = "[".
+lpar    = "(".
+minus   = "-".
+not     = "!".
+plus    = "+".
+rbrace  = "}".
+rbrack  = "]".
+rpar    = ")".
+tilde   = "~".
+igual   = "=".
+
+TOKENS
+
+letter = letter{letter} EXCEPT KEYWORDS.
+ident1 = letter {'_'} '*'.
+number = digit {digit}
+         | digit {digit} '.' {digit} ['E' ['+'|'-'] digit {digit}].
+intLit = 
+  (  zero | nonZeroDigit { digit }
+  | ( "0x" | "0X" ) hexDigit { hexDigit }
+  | '0' octalDigit { octalDigit }
+  ) [ "l" | "L" ].
+
+charLit = 
+"'" ( char
+    | "\\" ( "b" | "t" | "n" | "f" | "r" | "\"" | "\'" | "\\"
+           | "u" { "u" } hexDigit hexDigit hexDigit hexDigit
+           | zeroToThree [ octalDigit ] [ octalDigit ]
+           | octalDigit [ octalDigit ]
+           )
+    ) 
+"'".
+stringLit = 
+    "\"" { stringChar
+         | "\\" ( "b" | "t" | "n" | "f" | "r" | "\"" | "\'" | "\\"
+                | "u" { "u" } hexDigit hexDigit hexDigit hexDigit
+                | zeroToThree [ octalDigit ] [ octalDigit ]
+                | octalDigit [ octalDigit ]
+                )
+         } 
+    "\"" EXCEPT KEYWORDS.
+
+ floatLit =
+    "." digit {digit} 
+    [("e" | "E") ["+" | "-"] digit {digit}] 
+    [ "F" | "f" | "D" | "d" ]
+  | digit {digit} 
+    ( "." {digit} 
+      [("e" | "E" ) ["+" | "-"] digit {digit} ] 
+      [ "F" | "f" | "D" | "d" ]
+    | ("e" | "E") ["+" | "-"] digit {digit}
+      [ "F" | "f" | "D" | "d" ]
+    | "F" | "f" | "D" | "d"
+    ).  
+
+
+IGNORE " ".
+
+END LexerAnalyzer.

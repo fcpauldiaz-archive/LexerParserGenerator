@@ -1,0 +1,21 @@
+COMPILER Test
+
+CHARACTERS
+letter  = 'A'..'Z' + 'a'..'z'.
+digit   = '0'..'9'.
+plus    = '+'.
+
+KEYWORDS
+
+if = "if".
+
+TOKENS
+
+ident  = letter {letter | digit}.
+ident1 = letter {'_'} '*'.
+number = digit {digit}
+     | digit {digit} '.' {digit} ['E' ['+'|'-'] digit {digit}].
+
+IGNORE " ".
+
+END Test.

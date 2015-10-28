@@ -1,0 +1,21 @@
+count = count + increment
+while2
+ifwhile while
+A
+AB
++
+50.12E-12
+15
+'@'
+"!"
+"\\"
+'"'
+.232
+ifwhile2if@
+123ABC(H)
+if ( x == y ) {
+boolean f
+f = true
+}
+x--
+x++
