@@ -8,8 +8,11 @@ package lexerparsergenerator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Stack;
+import java.util.TreeSet;
 
 /**
  * Clase para revisar la estructura de un archivo de CocoL
@@ -41,8 +44,10 @@ public class LexerSyntax implements RegexConstants{
     private final Stack compare = new Stack();
     private boolean union = false;
     private int indexAutomata=-1;
-    
+    private HashSet returnGlobal = new HashSet();
+    private ArrayList<ArrayList<Produccion>> arrayGlobal = new ArrayList();
     private ArrayList<Automata> generador = new ArrayList();
+    private ArrayList<Produccion> producciones = new ArrayList();
     
     
  
@@ -299,10 +304,10 @@ public class LexerSyntax implements RegexConstants{
     public boolean production(int lineaActual){
         if (this.cadena.get(lineaActual).contains("END")||this.cadena.get(lineaActual).contains("IGNORE"))
             return false;
-     
+        String cadenaActual = this.cadena.get(lineaActual);
           //revisr identificador y símbolo '='
         try{
-            String antesIgual = this.cadena.get(lineaActual).substring(0, this.cadena.get(lineaActual).indexOf("=")-1);
+            String antesIgual = cadenaActual.substring(0, cadenaActual.indexOf("=")-1);
            
             int countOpen = this.count(antesIgual, '<');
             int countClose = this.count(antesIgual, '>');
@@ -314,12 +319,12 @@ public class LexerSyntax implements RegexConstants{
                 return false;
             }
             
-            int indexSearch = this.cadena.get(lineaActual).indexOf("=")-1;
-            while (this.cadena.get(lineaActual).substring(0, indexSearch).endsWith(" "))
+            int indexSearch = cadenaActual.indexOf("=")-1;
+            while (cadenaActual.substring(0, indexSearch).endsWith(" "))
                 indexSearch--;
             
-            int indexAttribute = this.cadena.get(lineaActual).substring(0, indexSearch).indexOf("<.");
-            int indexSemAction = this.cadena.get(lineaActual).substring(0, indexSearch).indexOf("(.");
+            int indexAttribute = cadenaActual.substring(0, indexSearch).indexOf("<.");
+            int indexSemAction = cadenaActual.substring(0, indexSearch).indexOf("(.");
             
             if (indexAttribute > indexSemAction && indexSemAction != -1)
                 return false;
@@ -330,27 +335,200 @@ public class LexerSyntax implements RegexConstants{
             if (indexAttribute == -1 && indexSemAction != -1)
                 indexSearch= indexSemAction;
             
-            while (this.cadena.get(lineaActual).substring(0, indexSearch).endsWith(" "))
+            while (cadenaActual.substring(0, indexSearch).endsWith(" "))
                 indexSearch--;
             
-            boolean identifier = checkAutomata(this.ident_,this.cadena.get(lineaActual).substring(0,indexSearch));
+            boolean identifier = checkAutomata(this.ident_,cadenaActual.substring(0,indexSearch));
             ///  int index1  = returnArray(identifier);
               if (!identifier){
                    return false;
               }
-              
+            
+            
                          
         }catch(Exception e){
             LexerParserGenerator.errores.SynErr(lineaActual, "falta un =");
             return false;
         }
         
-        int indexSearch = this.cadena.get(lineaActual).indexOf("=")+1;
+        int indexSearch = cadenaActual.indexOf("=")+1;
         
-        boolean expr = expression(lineaActual, this.cadena.get(lineaActual).substring(indexSearch));
+        boolean expr = expression(lineaActual, cadenaActual.substring(indexSearch));
+        
+        if (!this.cadena.get(lineaActual).contains("|")){
+            producciones.add(new Produccion(cadenaActual.substring(0,indexSearch-2),
+                    cadenaActual.substring(indexSearch,
+                    cadenaActual.indexOf(".")-1)
+            ));
+        }
+        else{
+            Stack<String> pilaOR = new Stack();
+            int cantOr = count(cadenaActual,'|');
+            String cadenaRevisar =  cadenaActual.substring(indexSearch,cadenaActual.indexOf(".")-1);
+            pilaOR.push(cadenaRevisar);
+            while (!pilaOR.isEmpty()){
+                cadenaRevisar = pilaOR.pop();
+                if ( cadenaRevisar.contains("|")){
+                    producciones.add(new Produccion(cadenaActual.substring(0,indexSearch-2),
+                            cadenaRevisar.substring(0,cadenaRevisar.indexOf("|"))
+                    ));
+                    System.out.println(cadenaRevisar);
+                    if (!cadenaRevisar.isEmpty())
+                        pilaOR.push(cadenaRevisar.substring(cadenaRevisar.indexOf("|")+1));
+                }
+                else{
+                producciones.add(new Produccion(cadenaActual.substring(0,indexSearch-2),
+                            cadenaRevisar
+                ));
+                }
+               
+                
+            }
+            
+        }
         
         return expr;
     }
+    
+    public void inputCal(){
+        for (int i = 0;i<producciones.size();i++){
+            System.out.println(producciones.get(i));
+        } 
+       
+        System.out.println("1. First");
+        System.out.println("2. Follow");
+        Scanner keyboard = new Scanner(System.in);
+        System.out.println(">>");
+        int input = keyboard.nextInt();
+        System.out.println("Ingrese cadena de símbolos");
+        String inputS = keyboard.next();
+        if (input==1){
+            try
+            {   System.out.println(first(inputS));
+
+            } catch(StackOverflowError e){
+                System.out.println("Error: Gramática recursiva");
+            }
+        }
+        if (input ==2){
+            System.out.println(follow(inputS));
+        }
+       
+    }
+    
+    public boolean terminal(String cadena){
+        return searchProductions(cadena).isEmpty();
+    }
+   
+    
+    public TreeSet first(String input){
+        input = input.trim();
+        TreeSet returnArray = new TreeSet();
+        if (specificProduction(input,EPSILON)){
+            returnArray.add(EPSILON);
+        }
+        if (terminal(input)){
+          returnArray.add(input);
+          return returnArray;
+        }
+       
+        if (!terminal(input)){
+            ArrayList<Produccion> prods = searchProductions(input);
+            for (int i = 0;i<prods.size();i++){
+                String[] parts = prods.get(i).getCuerpo().split(" ");
+                for (int j=0;j<parts.length;j++){
+                    String part = parts[j];
+                    returnArray.addAll(first(part));
+                    if (!returnArray.isEmpty())
+                        break;
+                }
+            }
+            
+        }
+        
+        return returnArray;    
+    }
+    public HashSet follow(String input){
+        HashSet returnArray = new HashSet();
+        if (input.equals(simboloInicial().getCabeza()))
+           returnArray.add("$");
+       
+        ArrayList<Produccion> productions = searchProductionCuerpo(input);
+       
+        for (int k = 0;k<arrayGlobal.size();k++){
+          
+           if (arrayGlobal.get(k).equals(productions))
+               return new HashSet();
+        }
+        Produccion p1 = new Produccion("hola","que");
+        Produccion p2 = new Produccion("hola","que");
+         
+        arrayGlobal.add(productions);
+        for (int i = 0; i <productions.size();i++){
+            String cuerpo = productions.get(i).getCuerpo();
+            String beta = cuerpo.substring(cuerpo.indexOf(input)+input.length());
+            TreeSet first = first(beta);
+            
+            
+            
+            if (!beta.isEmpty()){
+                first.remove(EPSILON);
+                returnArray.addAll(first);
+            }
+            if (beta.isEmpty() || first(beta).contains(EPSILON))
+                returnArray.addAll(follow(productions.get(i).getCabeza()));
+            
+           
+            
+        }
+       
+       return returnArray;
+    }
+    public boolean specificProduction(String cabeza, String cuerpo){
+        for (int i = 0;i<producciones.size();i++){
+            if (producciones.get(i).getCabeza().equals(cabeza)&&producciones.get(i).getCuerpo().equals(cuerpo))
+                return true;
+        }
+        return false;
+    }
+    
+    
+    public Produccion simboloInicial(){
+       return producciones.get(0);
+    }
+    
+    /**
+     * devuleve un array con las producciones que tengan al input como cabeza
+     * @param cabeza
+     * @return 
+     */
+    public ArrayList<Produccion> searchProductions(String cabeza){
+        ArrayList<Produccion> prod = new ArrayList();
+        for (int i = 0 ;i<producciones.size();i++){
+            if (producciones.get(i).getCabeza().equals(cabeza))
+                prod.add(producciones.get(i));
+        }
+        return prod;
+    }
+    
+    /**
+     * devuleve un array con las producciones que tengan al input como cuerpo.
+     * @param cuerpo
+     * @return 
+     */
+    public ArrayList<Produccion> searchProductionCuerpo(String cuerpo){
+        ArrayList<Produccion> prod = new ArrayList();
+        for (int i = 0 ;i<producciones.size();i++){
+            String[] parts = producciones.get(i).getCuerpo().split(" ");
+            for (int j=0;j<parts.length;j++){
+               if (parts[j].equals(cuerpo))
+                prod.add(producciones.get(i));
+            }
+           
+        }
+        return prod;
+    }
+    
     
      public boolean expression(int lineaActual,String cadenaRevisar){
         String antesRevisar = cadenaRevisar;
@@ -1330,8 +1508,13 @@ public class LexerSyntax implements RegexConstants{
                  + string.substring(pos + toReplace.length(), string.length());
         } else {
             return string;
+        }
     }
-}
+
+    public ArrayList<Produccion> getProducciones() {
+        return producciones;
+    }
+    
 }
 
 

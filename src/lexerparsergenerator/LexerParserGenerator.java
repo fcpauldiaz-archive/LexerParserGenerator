@@ -10,6 +10,7 @@ package lexerparsergenerator;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Scanner;
 
 
 /**
@@ -53,6 +54,8 @@ public class LexerParserGenerator {
             System.out.println("Ejecute el Main de la carpeta generador para probar el input");*/
         }
         System.out.println("Cantidad Errores: " + errores.getCount());
+     
+        lexer.inputCal();
     }
 
 }
