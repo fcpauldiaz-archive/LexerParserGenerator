@@ -372,7 +372,7 @@ public class LexerSyntax implements RegexConstants{
                     producciones.add(new Produccion(cadenaActual.substring(0,indexSearch-2),
                             cadenaRevisar.substring(0,cadenaRevisar.indexOf("|"))
                     ));
-                    System.out.println(cadenaRevisar);
+                    //System.out.println(cadenaRevisar);
                     if (!cadenaRevisar.isEmpty())
                         pilaOR.push(cadenaRevisar.substring(cadenaRevisar.indexOf("|")+1));
                 }
@@ -399,20 +399,41 @@ public class LexerSyntax implements RegexConstants{
         System.out.println("2. Follow");
         Scanner keyboard = new Scanner(System.in);
         System.out.println(">>");
-        int input = keyboard.nextInt();
-        System.out.println("Ingrese cadena de símbolos");
-        String inputS = keyboard.next();
-        if (input==1){
-            try
-            {   System.out.println(first(inputS));
+        int input = 0;
+        try {
+            input = keyboard.nextInt();
+        }catch(Exception e){
+            System.out.println("Debe ingresar un número");
+        }
+        
+      
+       
+            if (input==1){
+                try
+                {   
+                    System.out.println("Ingrese cadena de símbolos separada por espacios");
+                    String inputS = keyboard.next();
+                    
+                    if (revisarSimboloGramatica(inputS))
+                        System.out.println(first(inputS));
+                    else
+                        System.out.println("El símblo ingresado no pertenece a la gramática");
+                        
 
-            } catch(StackOverflowError e){
-                System.out.println("Error: Gramática recursiva");
+                } catch(StackOverflowError e){
+                    System.out.println("Error: Gramática recursiva");
+                }
             }
-        }
-        if (input ==2){
-            System.out.println(follow(inputS));
-        }
+            if (input ==2){
+                System.out.println("Ingrese un símbolo no-terminal");
+                String inputS = keyboard.next();
+                if (revisarSimboloGramatica(inputS))
+                    System.out.println(follow(inputS));
+                else
+                    System.out.println("El símbolo ingresado no pertenece a la gramática");
+            }
+        
+   
        
     }
     
@@ -460,8 +481,7 @@ public class LexerSyntax implements RegexConstants{
            if (arrayGlobal.get(k).equals(productions))
                return new HashSet();
         }
-        Produccion p1 = new Produccion("hola","que");
-        Produccion p2 = new Produccion("hola","que");
+       
          
         arrayGlobal.add(productions);
         for (int i = 0; i <productions.size();i++){
@@ -492,6 +512,14 @@ public class LexerSyntax implements RegexConstants{
         return false;
     }
     
+    public boolean revisarSimboloGramatica(String input){
+        for (int i = 0; i< producciones.size();i++){
+            if (producciones.get(i).getCabeza().contains(input)||
+                producciones.get(i).getCuerpo().contains(input))
+                return true;
+        }
+        return false;
+    }
     
     public Produccion simboloInicial(){
        return producciones.get(0);
