@@ -389,7 +389,9 @@ public class LexerSyntax implements RegexConstants{
         
         return expr;
     }
-    
+    /**
+     * Método para que llama a first y follow y recibe la entrada del usuarios
+     */
     public void inputCal(){
         for (int i = 0;i<producciones.size();i++){
             System.out.println(producciones.get(i));
@@ -436,12 +438,20 @@ public class LexerSyntax implements RegexConstants{
    
        
     }
-    
-    public boolean terminal(String cadena){
-        return searchProductions(cadena).isEmpty();
+    /**
+     * Método que dice si es terminal o no el símobolo
+     * @param simbolo
+     * @return true/false
+     */
+    public boolean terminal(String simbolo){
+        return searchProductions(simbolo).isEmpty();
     }
    
-    
+    /**
+     * Método que calcula el primer símbolo terminal encontrado
+     * @param input
+     * @return TreeSet con los símbolos terminales encontrados
+     */
     public TreeSet first(String input){
         input = input.trim();
         TreeSet returnArray = new TreeSet();
@@ -469,6 +479,12 @@ public class LexerSyntax implements RegexConstants{
         
         return returnArray;    
     }
+    /**
+     * Método que calcula el algoritmo follow
+     * devuelve los símbolos terminales que le siguen a un símbolo no terminal
+     * @param input
+     * @return HashSet con los símoblos terminales
+     */
     public HashSet follow(String input){
         HashSet returnArray = new HashSet();
         if (input.equals(simboloInicial().getCabeza()))
@@ -476,6 +492,10 @@ public class LexerSyntax implements RegexConstants{
        
         ArrayList<Produccion> productions = searchProductionCuerpo(input);
        
+        /*el siguiente ciclo y condicion sirve para determinar
+        * si hubo cambios en el follow anterior, si no hay cambios
+        * se termina el algoritmo recursivo.
+        */
         for (int k = 0;k<arrayGlobal.size();k++){
           
            if (arrayGlobal.get(k).equals(productions))
@@ -483,7 +503,7 @@ public class LexerSyntax implements RegexConstants{
         }
        
          
-        arrayGlobal.add(productions);
+        arrayGlobal.add(productions); //agregar las últimas producciones analizadas en el follow
         for (int i = 0; i <productions.size();i++){
             String cuerpo = productions.get(i).getCuerpo();
             String beta = cuerpo.substring(cuerpo.indexOf(input)+input.length());
@@ -492,7 +512,7 @@ public class LexerSyntax implements RegexConstants{
             
             
             if (!beta.isEmpty()){
-                first.remove(EPSILON);
+                first.remove(EPSILON); //es necesario quitar epsilon
                 returnArray.addAll(first);
             }
             if (beta.isEmpty() || first(beta).contains(EPSILON))
@@ -504,6 +524,12 @@ public class LexerSyntax implements RegexConstants{
        
        return returnArray;
     }
+    /**
+     * Método que revisa si existe cierta producción con cierta cabeza y cuerpo
+     * @param cabeza
+     * @param cuerpo
+     * @return true/false
+     */
     public boolean specificProduction(String cabeza, String cuerpo){
         for (int i = 0;i<producciones.size();i++){
             if (producciones.get(i).getCabeza().equals(cabeza)&&producciones.get(i).getCuerpo().equals(cuerpo))
@@ -511,7 +537,11 @@ public class LexerSyntax implements RegexConstants{
         }
         return false;
     }
-    
+    /**
+     * Método que revisa si existe el símbolo en la gramática
+     * @param input
+     * @return true/false
+     */
     public boolean revisarSimboloGramatica(String input){
         for (int i = 0; i< producciones.size();i++){
             if (producciones.get(i).getCabeza().contains(input)||
@@ -520,7 +550,10 @@ public class LexerSyntax implements RegexConstants{
         }
         return false;
     }
-    
+    /**
+     * Devuelve la producción inicial de la gramática
+     * @return Produccion
+     */
     public Produccion simboloInicial(){
        return producciones.get(0);
     }
