@@ -17,14 +17,23 @@ public class Produccion<T> {
 
     private T cabeza;
     private T cuerpo;
+    private Item item;
     
     public Produccion(){
         
     }
-
+    
+    
     public Produccion(T cabeza, T cuerpo) {
         this.cabeza = cabeza;
         this.cuerpo = cuerpo;
+        this.item = new Item(0);
+    }
+
+    public Produccion(T cabeza, T cuerpo, Item item) {
+        this.cabeza = cabeza;
+        this.cuerpo = cuerpo;
+        this.item = item.clonar();
     }
     
     
@@ -45,12 +54,14 @@ public class Produccion<T> {
         this.cuerpo = cuerpo;
     }
 
+    
+
     @Override
-    public String toString() {
-        return cabeza + " => " + cuerpo;
+    public int hashCode() {
+        int hash = 3;
+        return hash;
     }
 
-   
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -66,15 +77,53 @@ public class Produccion<T> {
         if (!Objects.equals(this.cuerpo, other.cuerpo)) {
             return false;
         }
+        if (!Objects.equals(this.item, other.item)) {
+            return false;
+        }
         return true;
     }
 
-  
+   
+   
 
- 
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
     
+    public Produccion clonar(){
+        return new Produccion(getCabeza(),getCuerpo(),getItem());
+    }
     
+    @Override
+    public String toString() {
+        return cabeza + " => " + cuerpoItem();
+    }
     
-    
+    public String cuerpoItem(){
+        String returnString = "";
+        for (int i = 0;i<cuerpo.toString().replaceAll("\\s", "").length();i++){
+            Character ch = cuerpo.toString().replaceAll("\\s", "").charAt(i);
+            if (i == (int)item.getPosicion()){
+                returnString += "•";
+            }
+            returnString += ch;
+        }
+       
+        if (cuerpo.toString().length()-countSpaces(cuerpo.toString())==(int)item.getPosicion())
+            returnString += "•";
+        
+        return returnString;
+    }
+    public int countSpaces(String string) {
+        int spaces = 0;
+        for(int i = 0; i < string.length(); i++) {
+            spaces += (Character.isWhitespace(string.charAt(i))) ? 1 : 0;
+        }
+        return spaces;
+    }
 }
 

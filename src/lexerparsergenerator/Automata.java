@@ -152,11 +152,15 @@ public class Automata implements RegexConstants {
         res += "Estado inicial " + this.inicial +"\r\n";
         res += "Conjutos de estados de aceptacion " + this.aceptacion +"\r\n";
         res += "Conjunto de Estados " + this.estados.toString()+"\r\n";
-        res += "Conjunto de transiciones ";
+        res += "Conjunto de transiciones: "+"\r\n";
         for (int i =0 ; i<this.estados.size();i++){
              Estado est = estados.get(i);
-             res += est.getTransiciones()+"-";
+             //res += est.getTransiciones()+"-";
+             for (int j = 0;j<est.getTransiciones().size();j++){
+                 res+=est.getTransiciones().get(j)+"\r\n";
+             }
         }
+        
         res += "\r\n";
         res += "Lenguaje r: " +this.lenguajeR + "\r\n";
         res += "Cadena w ingresada: "+this.resultadoRegex[1] + "\r\n";

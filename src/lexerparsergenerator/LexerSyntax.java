@@ -470,7 +470,9 @@ public class LexerSyntax implements RegexConstants{
                 for (int j=0;j<parts.length;j++){
                     String part = parts[j];
                     returnArray.addAll(first(part));
-                    if (!returnArray.isEmpty())
+                    if (first(part).contains(EPSILON))//si puede generar epsilon, buscar el siguiente
+                        continue;
+                    if (!returnArray.isEmpty()) //solo buscar el primer terminal
                         break;
                 }
             }

@@ -24,8 +24,9 @@ public class LexerParserGenerator {
     public static Errors errores = new Errors();
     /**
      * @param args the command line arguments
+     * @throws java.lang.CloneNotSupportedException
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CloneNotSupportedException {
         // TODO code application logic here
          // TODO code application logic here
         ReadFile read = new ReadFile();
@@ -55,7 +56,9 @@ public class LexerParserGenerator {
         }
         System.out.println("Cantidad Errores: " + errores.getCount());
      
-        lexer.inputCal();
+       // lexer.inputCal();
+        AutomataLR g = new AutomataLR(lexer.getProducciones());
+        g.construct();
     }
 
 }

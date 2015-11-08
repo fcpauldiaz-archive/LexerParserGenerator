@@ -1,7 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Universidad del Valle de Guatemala
+ * Pablo Díaz 13203
+ * Clase que guarda los caracteres modificados de los autómatas.
  */
 
 package lexerparsergenerator;
