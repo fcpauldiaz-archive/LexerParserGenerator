@@ -43,7 +43,6 @@ public class AutomataLR {
       
        while (!pila.isEmpty()){
           
-               System.out.println("");
            Estado actual = pila.pop();
            HashSet<String> alfabeto = calcularAlfabeto(actual);
            LR.getAlfabeto().addAll(alfabeto);
@@ -64,10 +63,15 @@ public class AutomataLR {
                    {
                         if ((int) search1.getItem().getPosicion() == index) {
                             Produccion modificar = (Produccion) search1.clonar();
-                            modificar.getItem().setPosicion((int)modificar.getItem().getPosicion()+letra.length());
-                            System.out.println(modificar);
-                            estadosNuevos.add(modificar);
+                             System.out.println("colocando");
+                            System.out.println(search1);
+                            System.out.println((int)modificar.getItem().getPosicion()+letra.length());
+                            System.out.println(search1.getCuerpo().split(" ").length);
+                            modificar.getItem().setPosicion((int)modificar.getItem().getPosicion()+1);
+                           
+                            estadosNuevos.addAll(closure(modificar));
                         }
+                       
                    }
                 }
                 if (!acumuladorEstados.contains(estadosNuevos)&&!estadosNuevos.isEmpty()){
@@ -77,7 +81,13 @@ public class AutomataLR {
                   LR.addEstados(nuevo);
                   pila.push(nuevo);
                 }
-              //falta decidir que hacer con los estados repetidos.
+                //condición para estados repetidos
+                else if (acumuladorEstados.contains(estadosNuevos)&&!estadosNuevos.isEmpty()){
+                   actual.setTransiciones(new Transicion(actual,
+                           findEstado(LR.getEstados(),new ArrayList(estadosNuevos))
+                           ,letra));
+                }
+              
            }
            
            
@@ -87,12 +97,43 @@ public class AutomataLR {
         System.out.println(LR);
         
     }
+       /**
+        * Método para buscar un estado en el autómata
+        * @param estados estados del autómata
+        * @param buscar conjunto de producciones que hacen un estados
+        * @return Estado encontrado
+        */
+       public Estado findEstado(ArrayList<Estado> estados, ArrayList<Produccion> buscar){
+           for (int i = 0;i<estados.size();i++){
+               Estado a = estados.get(i);
+               HashSet<Produccion> convert = (HashSet<Produccion>)a.getId();
+               ArrayList<Produccion> inner = new ArrayList(convert);
+               if (inner.size()==buscar.size()){
+                   boolean estadoCompleto = true;
+                    for (int j = 0;j<inner.size();j++){
+                        Produccion p1 = inner.get(j);
+                        Produccion p2 = buscar.get(j);
+                        if (!p1.getCabeza().equals(p2.getCabeza())&&
+                            !p1.getCuerpo().equals(p2.getCuerpo())&&
+                            !p1.getItem().getPosicion().equals(p2.getItem().getPosicion()))
+                            estadoCompleto = false;
+                        
+
+                    }
+                    if (estadoCompleto)
+                        return a;
+               }
+           }
+           return null;
+       }
+       
     /**
      * Método que devuelve todos los símbolos que pertenecen a un estado
      * @param estadoActual
      * @return Conjunto con Strings
      */
     public HashSet calcularAlfabeto(Estado estadoActual){
+       
         HashSet<Produccion> prod = (HashSet)estadoActual.getId();
         HashSet alfabeto = new HashSet();
         for (Produccion produccion : prod) {
@@ -115,15 +156,21 @@ public class AutomataLR {
         resultado.add(I);
         String[] parts = I.getCuerpo().split(" ");
         //falta arreglar este closure para cualquier produccion
-        if ((int)I.getItem().getPosicion()==0){//si el item es el inmediato
-            if (!this.terminal(parts[0])){//si no es terminal
-                ArrayList<Produccion> innerProd = searchProductions(parts[0]);//busca las producciones
+        //tengo que buscar el no-terminal actual del item
+        System.out.println(I);
+        
+        System.out.println(I.getItem().getPosicion());
+       //si el item es el inmediato
+        if ((int)I.getItem().getPosicion()<parts.length){
+            if (!this.terminal(parts[(int)I.getItem().getPosicion()])){//si no es terminal
+                ArrayList<Produccion> innerProd = searchProductions(parts[(int)I.getItem().getPosicion()]);//busca las producciones
                 for (int j = 0;j<innerProd.size();j++){
                     resultado.addAll(closure(innerProd.get(j)));//busca recursivamente.
                 }
-                
+
             }
         }
+        
         
         return resultado;
     }

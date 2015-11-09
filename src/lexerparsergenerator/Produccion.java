@@ -54,14 +54,18 @@ public class Produccion<T> {
         this.cuerpo = cuerpo;
     }
 
-    
-
     @Override
     public int hashCode() {
-        int hash = 3;
+        int hash = 7;
+        hash = 23 * hash + Objects.hashCode(this.cabeza);
+        hash = 23 * hash + Objects.hashCode(this.cuerpo);
+        hash = 23 * hash + Objects.hashCode(this.item);
         return hash;
     }
 
+    
+
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

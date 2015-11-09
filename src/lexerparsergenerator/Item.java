@@ -51,9 +51,11 @@ public class Item<T> {
     @Override
     public int hashCode() {
         int hash = 3;
+        hash = 17 * hash + Objects.hashCode(this.posicion);
         return hash;
     }
 
+     
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
