@@ -95,6 +95,7 @@ public class AutomataLR {
        
         LR.setTipo("LR(0)");
         System.out.println(LR);
+        crearArchivos(LR, 0, 0, "Automata LR(0)");
         
     }
        /**
@@ -232,6 +233,17 @@ public class AutomataLR {
      */
     public boolean terminal(String simbolo){
         return searchProductions(simbolo).isEmpty();
+    }
+    
+     public void crearArchivos(Automata tipoAutomata, double tiempoCreacion, double tiempoSimulacion, String tipo){
+        
+        FileCreator creadorArchivo = new FileCreator();
+        //Simulacion generadorGrafico = new Simulacion();
+        
+        creadorArchivo.crearArchivo(tipoAutomata.toString(), tiempoCreacion, tiempoSimulacion, tipo);
+        
+       // generadorGrafico.generarDOT(tipo, tipoAutomata);
+        
     }
 
 }

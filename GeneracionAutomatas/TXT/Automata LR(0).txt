@@ -1,0 +1,24 @@
+-------LR(0)---------
+Alfabeto [a, b, S', X, Y]
+Estado inicial [Y => •bYa, S' => •X, S => •S'$, Y => •a, X => •aa, X => •Yb]
+Conjutos de estados de aceptacion []
+Conjunto de Estados [[Y => •bYa, S' => •X, S => •S'$, Y => •a, X => •aa, X => •Yb], [Y => a•, X => a•a], [Y => •bYa, Y => b•Ya, Y => •a], [S => S•'$], [S' => X•], [X => Y•b], [X => Yb•], [Y => a•], [Y => bY•a], [Y => bYa•], [X => aa•]]
+Conjunto de transiciones: 
+([Y => •bYa, S' => •X, S => •S'$, Y => •a, X => •aa, X => •Yb]-a-[Y => a•, X => a•a])
+([Y => •bYa, S' => •X, S => •S'$, Y => •a, X => •aa, X => •Yb]-b-[Y => •bYa, Y => b•Ya, Y => •a])
+([Y => •bYa, S' => •X, S => •S'$, Y => •a, X => •aa, X => •Yb]-S'-[S => S•'$])
+([Y => •bYa, S' => •X, S => •S'$, Y => •a, X => •aa, X => •Yb]-X-[S' => X•])
+([Y => •bYa, S' => •X, S => •S'$, Y => •a, X => •aa, X => •Yb]-Y-[X => Y•b])
+([Y => a•, X => a•a]-a-[X => aa•])
+([Y => •bYa, Y => b•Ya, Y => •a]-a-[Y => a•])
+([Y => •bYa, Y => b•Ya, Y => •a]-b-[Y => •bYa, Y => b•Ya, Y => •a])
+([Y => •bYa, Y => b•Ya, Y => •a]-Y-[Y => bY•a])
+([X => Y•b]-b-[X => Yb•])
+([Y => bY•a]-a-[Y => bYa•])
+
+Lenguaje r: null
+Cadena w ingresada: null
+Resultado: null
+
+Tiempo Creación: 0.0 ns
+Tiempo Simulacion: 0.0 ns
