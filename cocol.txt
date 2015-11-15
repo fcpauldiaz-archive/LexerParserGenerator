@@ -104,10 +104,11 @@ IGNORE " ".
 
 PRODUCTIONS
 
-S = S' $ .
-S' = X .
-X = Y b | a a .
-Y = a | b Y a .
+S' = S $ .
+S = ( L ) .
+S = x .
+L = S .
+L = L , S .
 
 
 

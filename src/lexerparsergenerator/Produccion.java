@@ -102,6 +102,13 @@ public class Produccion<T> {
         return new Produccion(getCabeza(),getCuerpo(),getItem());
     }
     
+    public boolean isRecursivaIzquierda(){
+        String[] parts = cuerpo.toString().split(" ");
+        return cabeza.toString().trim().equals(parts[0].trim());
+    }
+    
+    
+    
     @Override
     public String toString() {
         return cabeza + " => " + cuerpoItem();

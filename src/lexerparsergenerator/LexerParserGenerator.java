@@ -59,6 +59,7 @@ public class LexerParserGenerator {
        // lexer.inputCal();
         AutomataLR g = new AutomataLR(lexer.getProducciones());
         g.constructLR();
+        g.crearTablaParseo();
     }
 
 }
