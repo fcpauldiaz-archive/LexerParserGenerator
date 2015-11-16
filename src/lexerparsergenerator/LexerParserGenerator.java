@@ -57,7 +57,8 @@ public class LexerParserGenerator {
         System.out.println("Cantidad Errores: " + errores.getCount());
      
        // lexer.inputCal();
-        AutomataLR g = new AutomataLR(lexer.getProducciones());
+       
+        AutomataLR g = new AutomataLR(lexer.getProducciones(),lexer);
         g.constructLR();
         g.crearTablaParseo();
     }

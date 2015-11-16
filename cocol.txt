@@ -104,12 +104,9 @@ IGNORE " ".
 
 PRODUCTIONS
 
-S' = S $ .
-S = ( L ) .
-S = x .
-L = S .
-L = L , S .
-
+S = P $ .
+P = ( P ) P .
+P = ε .
 
 
 

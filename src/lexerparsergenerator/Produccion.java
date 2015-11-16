@@ -28,6 +28,7 @@ public class Produccion<T> {
         this.cabeza = cabeza;
         this.cuerpo = cuerpo;
         this.item = new Item(0);
+        
     }
 
     public Produccion(T cabeza, T cuerpo, Item item) {

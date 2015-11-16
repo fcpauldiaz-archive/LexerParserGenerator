@@ -74,18 +74,23 @@ public class ItemTablaParseo<T> {
         return returnString;
     }
      
-    public String toString(boolean espacio) {
+    public String toString(int espacio) {
         String returnString ="";
+        returnString += repeatString("\t",1);
         
-        
-        returnString = "\t" + operacion + nextEstado;
-        if (espacio)
-            returnString += "\t";
+        returnString += simbolo +": "+operacion + nextEstado;
+      
         
         
         return returnString;
     }
     
-    
+    private String repeatString(String s,int count){
+        StringBuilder r = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            r.append(s);
+        }
+        return r.toString();
+    }
     
 }

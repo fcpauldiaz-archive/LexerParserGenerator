@@ -454,6 +454,7 @@ public class LexerSyntax implements RegexConstants{
      */
     public TreeSet first(String input){
         input = input.trim();
+        input = input.substring(0,1);
         TreeSet returnArray = new TreeSet();
         if (specificProduction(input,EPSILON)){
             returnArray.add(EPSILON);
@@ -1576,6 +1577,14 @@ public class LexerSyntax implements RegexConstants{
 
     public ArrayList<Produccion> getProducciones() {
         return producciones;
+    }
+
+    public ArrayList<ArrayList<Produccion>> getArrayGlobal() {
+        return arrayGlobal;
+    }
+
+    public void setArrayGlobal(ArrayList<ArrayList<Produccion>> arrayGlobal) {
+        this.arrayGlobal = arrayGlobal;
     }
     
 }

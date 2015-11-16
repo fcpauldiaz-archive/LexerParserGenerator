@@ -1,21 +1,16 @@
 -------LR(0)---------
-Alfabeto [S, x, (, ), L, ,]
-Estado inicial [S' => •S$, S => •x, S => •(L)]
+Alfabeto [P, (, )]
+Estado inicial [P => •ε, P => •(P)P, S => •P$]
 Conjutos de estados de aceptacion []
-Conjunto de Estados [[S' => •S$, S => •x, S => •(L)], [S' => S•$], [S => x•], [L => •S, L => •L,S, S => (•L), S => •x, S => •(L)], [L => S•], [L => L•,S, S => (L•)], [S => (L)•], [L => L,•S, S => •x, S => •(L)], [L => L,S•]]
+Conjunto de Estados [[P => •ε, P => •(P)P, S => •P$], [S => P•$], [P => •ε, P => (•P)P, P => •(P)P], [P => (P•)P], [P => (P)•P, P => •ε, P => •(P)P], [P => (P)P•]]
 Conjunto de transiciones: 
-([S' => •S$, S => •x, S => •(L)]-S-[S' => S•$])
-([S' => •S$, S => •x, S => •(L)]-x-[S => x•])
-([S' => •S$, S => •x, S => •(L)]-(-[L => •S, L => •L,S, S => (•L), S => •x, S => •(L)])
-([L => •S, L => •L,S, S => (•L), S => •x, S => •(L)]-S-[L => S•])
-([L => •S, L => •L,S, S => (•L), S => •x, S => •(L)]-(-[L => •S, L => •L,S, S => (•L), S => •x, S => •(L)])
-([L => •S, L => •L,S, S => (•L), S => •x, S => •(L)]-x-[S' => S•$])
-([L => •S, L => •L,S, S => (•L), S => •x, S => •(L)]-L-[L => L•,S, S => (L•)])
-([L => L•,S, S => (L•)]-)-[S => (L)•])
-([L => L•,S, S => (L•)]-,-[L => L,•S, S => •x, S => •(L)])
-([L => L,•S, S => •x, S => •(L)]-S-[L => L,S•])
-([L => L,•S, S => •x, S => •(L)]-x-[S' => S•$])
-([L => L,•S, S => •x, S => •(L)]-(-[L => •S, L => •L,S, S => (•L), S => •x, S => •(L)])
+([P => •ε, P => •(P)P, S => •P$]-P-[S => P•$])
+([P => •ε, P => •(P)P, S => •P$]-(-[P => •ε, P => (•P)P, P => •(P)P])
+([P => •ε, P => (•P)P, P => •(P)P]-P-[P => (P•)P])
+([P => •ε, P => (•P)P, P => •(P)P]-(-[P => •ε, P => (•P)P, P => •(P)P])
+([P => (P•)P]-)-[P => (P)•P, P => •ε, P => •(P)P])
+([P => (P)•P, P => •ε, P => •(P)P]-P-[P => (P)P•])
+([P => (P)•P, P => •ε, P => •(P)P]-(-[P => •ε, P => (•P)P, P => •(P)P])
 
 Lenguaje r: null
 Cadena w ingresada: null

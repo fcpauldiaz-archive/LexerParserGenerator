@@ -19,12 +19,14 @@ public class AutomataLR {
     
     private final ArrayList<Produccion> producciones;
     private final ArrayList<ItemTablaParseo> tablaParseo;
+    private LexerSyntax syntax;
     private Automata LR;
 
-    public AutomataLR(ArrayList<Produccion> producciones) {
+    public AutomataLR(ArrayList<Produccion> producciones,LexerSyntax syntax) {
         //producciones leidas en la gramática
         this.producciones = producciones;
         this.tablaParseo = new ArrayList();
+        this.syntax = syntax;
     }
     
     
@@ -51,7 +53,7 @@ public class AutomataLR {
            LR.getAlfabeto().addAll(alfabeto);
            for (String letra: alfabeto){//hacer transiciones con cada letra de los cuerpos.
                 //buscar las transiciones de cada cuerpo
-              
+                //System.out.println(LR);
                 ArrayList<Produccion> search = searchProductionCuerpo(letra, (HashSet)actual.getId());
                 HashSet estadosNuevos = new HashSet();
                 for (Produccion search1 : search) {
@@ -118,8 +120,8 @@ public class AutomataLR {
                     for (int j = 0;j<inner.size();j++){
                         Produccion p1 = inner.get(j);
                         Produccion p2 = buscar.get(j);
-                        if (!p1.getCabeza().equals(p2.getCabeza())&&
-                            !p1.getCuerpo().equals(p2.getCuerpo())&&
+                        if (!p1.getCabeza().equals(p2.getCabeza())||
+                            !p1.getCuerpo().equals(p2.getCuerpo())||
                             !p1.getItem().getPosicion().equals(p2.getItem().getPosicion()))
                             estadoCompleto = false;
                         
@@ -144,7 +146,7 @@ public class AutomataLR {
         for (Produccion produccion : prod) {
             String[] parts = produccion.getCuerpo().split(" ");
             for (String part : parts) {
-                if (!part.equals("$")) {//se omite el símbolo de dólar.
+                if (!part.equals("$")&&!part.equals("ε")) {//se omite el símbolo de dólar.
                     alfabeto.add(part);
                 }
             }
@@ -254,8 +256,12 @@ public class AutomataLR {
      }
      
     public void crearTablaParseo(){
-        
+        quitarEpsilon();
+       
         for (int i = 0; i < LR.getEstados().size();i++){
+            if (i == 5){
+                System.out.println("");
+            }
             Estado estadoActual = LR.getEstados().get(i);
             ArrayList<String> alfabeto = new ArrayList(LR.getAlfabeto());
             alfabeto.add("$");
@@ -270,22 +276,37 @@ public class AutomataLR {
                 
             }
             HashSet<Produccion> products = (HashSet<Produccion>) estadoActual.getId();
+            int cantidadReduce = 0;
+            int cantidadShift = 0;
+            System.out.println(products);
             for (Produccion product : products) {
+               
                 if ((int)product.getItem().getPosicion() == product.getCuerpo().replaceAll("\\s", "").length()){
-                    //hacer reduccion con todos el alfabeto.
-                    for (String letra : alfabeto){
-                        if (terminal(letra)||letra.equals("$")){
-                            int indiceBuscado = this.indexOf(product);
-                            if (indiceBuscado != -1){
-                                tablaParseo.add(new ItemTablaParseo(i,letra,"r",indiceBuscado));
-                            }
+                   
+                    int indiceBuscado = this.indexOf(product);
+                            
+                    if (indiceBuscado != -1){
+                        HashSet resultadoFollow = syntax.follow(producciones.get(indiceBuscado).getCabeza());
+                        syntax.getArrayGlobal().clear();
+                        for (String letra: (HashSet<String>)resultadoFollow){
+                            tablaParseo.add(new ItemTablaParseo(i,letra,"r",indiceBuscado));
                         }
                         
                     }
-                }if ((int)product.getItem().getPosicion() == product.getCuerpo().replaceAll("\\s", "").indexOf("$")){
+                    cantidadReduce++;
+                } else{
+                    cantidadShift++;
+                } 
+                
+                if ((int)product.getItem().getPosicion() == product.getCuerpo().replaceAll("\\s", "").indexOf("$")){
                      tablaParseo.add(new ItemTablaParseo(i,"$","accept",1));
                 }
                 
+            }
+            if (cantidadReduce>1 && cantidadShift <1)
+                System.out.println("Error reduce/reduce");
+            else if (cantidadReduce>1 && cantidadShift>=1){
+                System.out.println("Error shift/reduce");
             }
             
         }
@@ -295,16 +316,20 @@ public class AutomataLR {
         for (String letra: alfabeto){
            acum += letra + "\t";
         }
-        System.out.println(acum);
+       // System.out.println(acum);
         String tabla = "";
         int anterior = 0;
-       for (int k = 0;k<tablaParseo.size();k++){
+        for (int k = 0;k<tablaParseo.size();k++){
            
            if (k == 0){
                tabla += (int)tablaParseo.get(k).getActualEstado();
            }
-           boolean espacio =false;
-       
+           int espacio =1;
+           //System.out.println(k);
+           //System.out.println(alfabeto.indexOf(tablaParseo.get(k).getSimbolo()));
+           espacio += Math.abs(k-alfabeto.indexOf(tablaParseo.get(k).getSimbolo()))%6;
+            //System.out.println(espacio);
+            //  System.out.println("");
            tabla += tablaParseo.get(k).toString(espacio);
            
             if (k+1<tablaParseo.size()){
@@ -317,6 +342,27 @@ public class AutomataLR {
        }
         System.out.println(tabla);
         System.out.println("");    
+    }
+    
+    public void quitarEpsilon(){
+        for (int i = 0;i<this.LR.getEstados().size();i++){
+            HashSet<Produccion> inn = (HashSet)LR.getEstados().get(i).getId();
+            ArrayList<Produccion> inner = new ArrayList(inn);
+            for (int j = 0;j< inner.size();j++){
+                if (inner.get(j).getCuerpo().contains("ε"))
+                    inner.get(j).setCuerpo("");
+            }
+           
+        }
+    }
+    
+    public boolean revisarLetras(String letra, int index){
+        for (int i = 0 ;i<this.tablaParseo.size();i++){
+            if ((int)tablaParseo.get(i).getActualEstado() == index &&
+                tablaParseo.get(i).getSimbolo().equals(letra))
+                return false;
+        }
+        return true;
     }
     
     public int indexOf(Produccion productions){
