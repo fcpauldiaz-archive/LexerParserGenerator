@@ -383,6 +383,78 @@ public class AutomataLR {
         return index;
     }
     
+    public ItemTablaParseo buscarItem(String simbolo, int estado){
+        for (int i = 0;i<tablaParseo.size();i++){
+            if ((int)tablaParseo.get(i).getActualEstado() == estado &&
+                tablaParseo.get(i).getSimbolo().equals(simbolo))
+                return tablaParseo.get(i);
+        }
+        return null;
+    }
+    
+    public void procesoParseo(String input){
+        input += "$";
+        Stack estados = new Stack();
+        estados.push(0);
+        int i = 0;
+        boolean Goto = false;
+      
+        while(true){
+            Character ch = input.charAt(i);
+            int actual = (int)estados.peek();
+            ItemTablaParseo encontrado = buscarItem(ch.toString(),actual);
+            String op = (String)encontrado.getOperacion();
+            if (op.equals("r"))
+                op = "reduce";
+            if (Goto)
+                op = "goto";
+            System.out.format("%32s%10s%10s", estados, input.substring(i),op);
+            System.out.println("");
+            
+            //op += encontrado.getNextEstado();
+            
+            if (encontrado.getOperacion().equals("shift")){
+                i++;
+                estados.push(encontrado.getNextEstado());
+            }
+            else if (encontrado.getOperacion().equals("r")&&!Goto){
+                int cantidad = producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll("\\s", "").length();
+                while(cantidad>0){
+                    estados.pop();
+                    cantidad--;
+                }
+                Goto = true;
+            }
+            else if (Goto){
+                int buscarEstado = (int)estados.peek();
+                String transicion = producciones.get((int)encontrado.getNextEstado()).getCabeza();
+                int estadoEncontrado = -1;
+                for (int j = 0;j<LR.getEstados().size();j++){
+                    if (j == buscarEstado){
+                        for(Transicion trans : (ArrayList<Transicion>)LR.getEstados().get(j).getTransiciones()){
+                            if (trans.getSimbolo().equals(transicion)){
+                                estadoEncontrado= LR.getEstados().indexOf(trans.getFin());
+                                
+                            }
+                        }
+                    }
+                }
+                estados.push(estadoEncontrado);
+                Goto = false;
+            }
+           
+           
+                
+          
+             if (encontrado.getOperacion().equals("accept"))
+                break;
+           
+            
+        }
+    }
+    
+    
+    
     public String determinarOperacion(String letra){
         if (terminal(letra)){
             return "shift";

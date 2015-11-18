@@ -61,6 +61,7 @@ public class LexerParserGenerator {
         AutomataLR g = new AutomataLR(lexer.getProducciones(),lexer);
         g.constructLR();
         g.crearTablaParseo();
+        g.procesoParseo("(()())()");
     }
 
 }
