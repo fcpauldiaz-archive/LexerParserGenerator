@@ -16,7 +16,7 @@ import java.util.HashMap;
  *
  * @author Pablo
  */
-public class LexerParserGenerator {
+public class CompilerMain {
 
     public static String EPSILON = "ε";
     public static char EPSILON_CHAR = EPSILON.charAt(0);
@@ -60,7 +60,7 @@ public class LexerParserGenerator {
         ParserSLRGenerator g = new ParserSLRGenerator(lexer.getProducciones(),lexer,generator.getNombreArchivo());
         g.constructLR();
         g.crearTablaParseo();
-        g.procesoParseo("(()())()");
+        //g.procesoParseo("(()())()");
         g.generarParser();
         g.serialize();
         

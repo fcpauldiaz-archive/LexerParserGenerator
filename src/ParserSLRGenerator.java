@@ -40,6 +40,7 @@ public class ParserSLRGenerator {
      * Método que construye el autómata LR
      */
     public void constructLR(){
+        System.out.println(producciones);
        HashSet closureInicial =  closure(producciones.get(0));//se empieza por closure del símbolo inicial.
        
        LR = new Automata();
@@ -56,6 +57,7 @@ public class ParserSLRGenerator {
           
            Estado actual = pila.pop();
            HashSet<String> alfabeto = calcularAlfabeto(actual);
+           System.out.println(alfabeto);
            LR.getAlfabeto().addAll(alfabeto);
            for (String letra: alfabeto){//hacer transiciones con cada letra de los cuerpos.
                 //buscar las transiciones de cada cuerpo
@@ -75,11 +77,13 @@ public class ParserSLRGenerator {
                    {
                         if ((int) search1.getItem().getPosicion() == index) {
                             Produccion modificar = (Produccion) search1.clonar();
-                            System.out.println("colocando");
-                            System.out.println(search1);
-                            System.out.println((int)modificar.getItem().getPosicion()+letra.length());
-                            System.out.println(search1.getCuerpo().split(" ").length);
-                            modificar.getItem().setPosicion((int)modificar.getItem().getPosicion()+1);
+                          
+                            //System.out.println("colocando");
+                            //System.out.println(search1);
+                            //System.out.println((int)modificar.getItem().getPosicion()+letra.length());
+                            //System.out.println(search1.getCuerpo().split(" ").length);
+                            modificar.getItem().setPosicion((int)modificar.getItem().getPosicion()+letra.length());
+                            System.out.println(modificar);
                            
                             estadosNuevos.addAll(closure(modificar));
                         }
@@ -101,6 +105,7 @@ public class ParserSLRGenerator {
                 }
               
            }
+           System.out.println(LR);
            
            
        }
@@ -152,6 +157,7 @@ public class ParserSLRGenerator {
         for (Produccion produccion : prod) {
             String[] parts = produccion.getCuerpo().split(" ");
             for (String part : parts) {
+                System.out.println(part);
                 if (!part.equals("$")&&!part.equals("ε")) {//se omite el símbolo de dólar.
                     alfabeto.add(part);
                 }
@@ -263,7 +269,10 @@ public class ParserSLRGenerator {
      
     public void crearTablaParseo(){
         quitarEpsilon();
-       
+        String error = "";
+        String errorShift = "";
+        String errorReduce = "";
+         HashSet ver3 = new HashSet();
         for (int i = 0; i < LR.getEstados().size();i++){
             if (i == 5){
                 System.out.println("");
@@ -295,13 +304,16 @@ public class ParserSLRGenerator {
                         HashSet resultadoFollow = syntax.follow(producciones.get(indiceBuscado).getCabeza());
                         syntax.getArrayGlobal().clear();
                         for (String letra: (HashSet<String>)resultadoFollow){
-                            tablaParseo.add(new ItemTablaParseo(i,letra,"r",indiceBuscado));
+                            if (!letra.isEmpty())
+                                tablaParseo.add(new ItemTablaParseo(i,letra,"r",indiceBuscado));
                         }
                         
                     }
                     cantidadReduce++;
+                   
                 } else{
                     cantidadShift++;
+                  
                 } 
                 
                 if ((int)product.getItem().getPosicion() == product.getCuerpo().replaceAll("\\s", "").indexOf("$")){
@@ -310,9 +322,37 @@ public class ParserSLRGenerator {
                 
             }
             if (cantidadReduce>1 && cantidadShift <1)
-                System.out.println("Error reduce/reduce");
-            else if (cantidadReduce>1 && cantidadShift>=1){
-                System.out.println("Error shift/reduce");
+               error = ("Error reduce/reduce");
+            else if (cantidadReduce>=1 && cantidadShift>=1){
+                int es = 0;
+                ArrayList ver = new ArrayList();
+                ArrayList ver2 = new ArrayList();
+               
+                int in = -1;
+                for (int k = 0; k<tablaParseo.size();k++){
+                    ItemTablaParseo it = tablaParseo.get(k);
+                    
+                    if ((int)it.getActualEstado()==es){
+                        if (!ver.contains(it.getSimbolo())){
+                            ver.add(it.getSimbolo());
+                            ver2.add(it);
+                        }
+                        else{
+                            in = ver.indexOf(it.getSimbolo());
+                            ver3.add(ver2.get(in));
+                            ver3.add(it);
+                        }
+                        
+                    }
+                    else{
+                        es++;
+                        ver.clear();
+                        ver2.clear();
+                    }
+                    
+                }
+              
+                error = ("Error shift"+errorShift+"/reduce"+errorReduce);
             }
             
         }
@@ -347,7 +387,20 @@ public class ParserSLRGenerator {
            
        }
         System.out.println(tabla);
-        System.out.println("");    
+        System.out.println("");
+        ArrayList<ItemTablaParseo> conv = new ArrayList(ver3);
+        String[] parts = new String[conv.size()];
+         for (int j = 0 ;j<parts.length;j++)
+          parts[j] = "";
+        for (int j = 0;j<conv.size();j++){
+            String op = (String)conv.get(j).getOperacion();
+            if (op.equals("r"))
+                op = "reduce";
+           parts[(int)conv.get(j).getActualEstado()] += op+(int)conv.get(j).getNextEstado()+"/";
+        }
+        for (int j = 0 ;j<parts.length;j++)
+            if (!parts[j].isEmpty())
+                System.out.println("Estado " + j +" : "+parts[j]);
     }
     
     public void quitarEpsilon(){

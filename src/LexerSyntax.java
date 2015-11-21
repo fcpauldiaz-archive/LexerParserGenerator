@@ -267,7 +267,7 @@ public class LexerSyntax implements RegexConstants{
         //revisar identificadores
         if (!res4.isEmpty()&&!res2.isEmpty()){
             if (!res4.get(1).toString().trim().equals(res2.get(1).toString().trim())){
-                LexerParserGenerator.errores.SynErr(lineaActual, "Los identificadores no coinciden");
+                CompilerMain.errores.SynErr(lineaActual, "Los identificadores no coinciden");
                 System.out.println( res4.get(1).toString().trim()+ " y "+ res2.get(1).toString().trim() +" no coinciden");
                 output=false;
             }
@@ -315,7 +315,7 @@ public class LexerSyntax implements RegexConstants{
             int closeClount = this.count(antesIgual, ')');
             
             if (countOpen > 1 || countClose > 1|| openCount > 1|| closeClount > 1){
-                LexerParserGenerator.errores.SynErr(lineaActual, "Hay un error de <> o ()");
+                CompilerMain.errores.SynErr(lineaActual, "Hay un error de <> o ()");
                 return false;
             }
             
@@ -347,7 +347,7 @@ public class LexerSyntax implements RegexConstants{
             
                          
         }catch(Exception e){
-            LexerParserGenerator.errores.SynErr(lineaActual, "falta un =");
+            CompilerMain.errores.SynErr(lineaActual, "falta un =");
             return false;
         }
         
@@ -358,7 +358,7 @@ public class LexerSyntax implements RegexConstants{
         if (!this.cadena.get(lineaActual).contains("|")){
             producciones.add(new Produccion(cadenaActual.substring(0,indexSearch-2),
                     cadenaActual.substring(indexSearch,
-                    cadenaActual.indexOf(".")-1)
+                    cadenaActual.indexOf("."))
             ));
         }
         else{
@@ -454,7 +454,8 @@ public class LexerSyntax implements RegexConstants{
      */
     public TreeSet first(String input){
         input = input.trim();
-        input = input.substring(0,1);
+        if (!input.isEmpty())
+            input = input.substring(0,1);
         TreeSet returnArray = new TreeSet();
         if (specificProduction(input,EPSILON)){
             returnArray.add(EPSILON);
@@ -521,7 +522,6 @@ public class LexerSyntax implements RegexConstants{
             if (beta.isEmpty() || first(beta).contains(EPSILON))
                 returnArray.addAll(follow(productions.get(i).getCabeza()));
             
-           
             
         }
        
@@ -602,7 +602,7 @@ public class LexerSyntax implements RegexConstants{
         int closeClount = this.count(antesRevisar, ')');
 
             if (countOpen !=  countClose || openCount != closeClount){
-                LexerParserGenerator.errores.SynErr(lineaActual, "Están desbalanceados los <> o los ()");
+                CompilerMain.errores.SynErr(lineaActual, "Están desbalanceados los <> o los ()");
                 return false;
             }
         
@@ -623,7 +623,7 @@ public class LexerSyntax implements RegexConstants{
         regex = convert.infixToPostfix(cadenaRevisar);
        
         if (regex.isEmpty()){
-            LexerParserGenerator.errores.SynErr(lineaActual, "Expresión mal ingresada"+"\n" + antesRevisar);
+            CompilerMain.errores.SynErr(lineaActual, "Expresión mal ingresada"+"\n" + antesRevisar);
             return false;
         }  
         
@@ -650,7 +650,7 @@ public class LexerSyntax implements RegexConstants{
         lineaActual = avanzarLinea(lineaActual);
        
         if (!this.cadena.get(lineaActual).contains("CHARACTERS")){
-            LexerParserGenerator.errores.SynErr(lineaActual, "No contiene la palabra CHARACTERS");
+            CompilerMain.errores.SynErr(lineaActual, "No contiene la palabra CHARACTERS");
             return new ArrayList();
         }
         lineaActual = avanzarLinea(lineaActual);
@@ -667,7 +667,7 @@ public class LexerSyntax implements RegexConstants{
         //[KEYWRORDS]
         lineaActual = avanzarLinea(lineaActual);
          if (!this.cadena.get(lineaActual).contains("KEYWORDS")){
-            LexerParserGenerator.errores.SynErr(lineaActual, " No contiene la palabra KEYWORDS");
+            CompilerMain.errores.SynErr(lineaActual, " No contiene la palabra KEYWORDS");
             return new ArrayList();
         }
         lineaActual = avanzarLinea(lineaActual);
@@ -684,7 +684,7 @@ public class LexerSyntax implements RegexConstants{
         
          lineaActual = avanzarLinea(lineaActual);
          if (!this.cadena.get(lineaActual).contains("TOKENS")){
-            LexerParserGenerator.errores.SynErr(lineaActual, "NO Contiene la palabra TOKENS");
+            CompilerMain.errores.SynErr(lineaActual, "NO Contiene la palabra TOKENS");
             return new ArrayList();
         }
         
@@ -759,7 +759,7 @@ public class LexerSyntax implements RegexConstants{
             if (cadenaRevisar.substring(0, cadenaRevisar.length()).contains("."))
                 cadenaRevisar = cadenaRevisar.substring(0, cadenaRevisar.length()-1);
             else{    
-               LexerParserGenerator.errores.Warning(lineaActual, "NO contiene punto al final");
+               CompilerMain.errores.Warning(lineaActual, "NO contiene punto al final");
                 
             }
            
@@ -769,7 +769,7 @@ public class LexerSyntax implements RegexConstants{
             
             return tkExpr;
          }catch(Exception e){
-              LexerParserGenerator.errores.SemErr(lineaActual, this.cadena.get(lineaActual));
+              CompilerMain.errores.SemErr(lineaActual, this.cadena.get(lineaActual));
              this.output=false;
          }
         return false;
@@ -800,7 +800,7 @@ public class LexerSyntax implements RegexConstants{
         regex = convert.infixToPostfix(cadenaRevisar);
        
         if (regex.isEmpty()){
-            LexerParserGenerator.errores.SynErr(lineaActual, "Expresión mal ingresada"+"\n" + antesRevisar);
+            CompilerMain.errores.SynErr(lineaActual, "Expresión mal ingresada"+"\n" + antesRevisar);
             return false;
         }    
          
@@ -1044,11 +1044,11 @@ public class LexerSyntax implements RegexConstants{
             if (cadenaRevisar.substring(0, cadenaRevisar.length()).contains("."))
                 cadenaRevisar = cadenaRevisar.substring(0, cadenaRevisar.length()-1);
             else{    
-               LexerParserGenerator.errores.SynErr(lineaActual, "No contiene punto al final");
+               CompilerMain.errores.SynErr(lineaActual, "No contiene punto al final");
             }
             boolean resSet = checkAutomata(this.string_,cadenaRevisar);
          }catch(Exception e){
-             LexerParserGenerator.errores.SemErr(lineaActual, "expresión mal ingresada");
+             CompilerMain.errores.SemErr(lineaActual, "expresión mal ingresada");
              this.output=false;
          }
         
@@ -1083,7 +1083,7 @@ public class LexerSyntax implements RegexConstants{
                   return false;
               }
         }catch(Exception e){
-            LexerParserGenerator.errores.SynErr(lineaActual, "No contiene = ");
+            CompilerMain.errores.SynErr(lineaActual, "No contiene = ");
             this.output=false;
         }
         
@@ -1100,7 +1100,7 @@ public class LexerSyntax implements RegexConstants{
             if (!equals)
                 return false;
         }catch(Exception e){
-            LexerParserGenerator.errores.SynErr(lineaActual, "No contiene = ");
+            CompilerMain.errores.SynErr(lineaActual, "No contiene = ");
             this.output=false;
         }
      
@@ -1114,7 +1114,7 @@ public class LexerSyntax implements RegexConstants{
             if (cadenaRevisar.substring(0, cadenaRevisar.length()).contains("."))
                 cadenaRevisar = cadenaRevisar.substring(0, cadenaRevisar.length()-1);
             else{
-                  LexerParserGenerator.errores.Warning(lineaActual, "No contiene punto al final ");
+                  CompilerMain.errores.Warning(lineaActual, "No contiene punto al final ");
                 
             }
             boolean resSet = set(lineaActual,cadenaRevisar);
@@ -1221,7 +1221,7 @@ public class LexerSyntax implements RegexConstants{
         }*/
         
        if (!resBasicSet)
-             LexerParserGenerator.errores.SynErr(lineaActual, "No fue reconocido " + regex);
+             CompilerMain.errores.SynErr(lineaActual, "No fue reconocido " + regex);
         
        
         return resBasicSet;

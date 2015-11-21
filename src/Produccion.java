@@ -118,18 +118,14 @@ public class Produccion<T> implements Serializable{
     
     public String cuerpoItem(){
         String returnString = "";
-        for (int i = 0;i<cuerpo.toString().replaceAll("\\s", "").length();i++){
-            Character ch = cuerpo.toString().replaceAll("\\s", "").charAt(i);
-            if (i == (int)item.getPosicion()){
-                returnString += "•";
-            }
-            returnString += ch;
-        }
+        returnString = cuerpo.toString().replaceAll("\\s","").substring(0,(int)item.getPosicion())+
+                "•"+cuerpo.toString().replaceAll("\\s","").substring(((int)item.getPosicion()));
        
-        if (cuerpo.toString().length()-countSpaces(cuerpo.toString())==(int)item.getPosicion())
-            returnString += "•";
         
-        return returnString;
+       if (cuerpo.toString().length()-countSpaces(cuerpo.toString())==(int)item.getPosicion())
+            returnString = cuerpo.toString()+"•";
+        
+        return returnString.replaceAll("\\s","");
     }
     public int countSpaces(String string) {
         int spaces = 0;

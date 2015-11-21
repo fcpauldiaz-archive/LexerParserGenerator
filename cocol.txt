@@ -104,9 +104,9 @@ IGNORE " ".
 
 PRODUCTIONS
 
-S = P $ .
-P = ( P ) P .
-P = ε .
+S = P $.
+P = ( P ) P.
+P = ε.
 
 
 
