@@ -6,10 +6,8 @@
 
 
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,6 +24,7 @@ public class ParserSLRGenerator {
     private LexerSyntax syntax;
     private Automata LR;
     private String nombreArchivo;
+    private ArrayList globalClosure = new ArrayList();
 
     public ParserSLRGenerator(ArrayList<Produccion> producciones,LexerSyntax syntax,String nombreArchivo) {
         //producciones leidas en la gramática
@@ -40,8 +39,15 @@ public class ParserSLRGenerator {
      * Método que construye el autómata LR
      */
     public void constructLR(){
-        System.out.println(producciones);
-       HashSet closureInicial =  closure(producciones.get(0));//se empieza por closure del símbolo inicial.
+       //agregar simbolo $ si no lo contiene
+        for (int z = 0 ;z < producciones.size();z++){
+            System.out.println(producciones.get(z));
+        }
+       if (!producciones.get(0).getCuerpo().contains("$"))
+           producciones.get(0).setCuerpo(producciones.get(0).getCuerpo()+" $");
+       
+       //se empieza por closure del símbolo inicial.
+       HashSet closureInicial =  closure(producciones.get(0));
        
        LR = new Automata();
        //crear y agregar el estado inicial al autómata
@@ -57,7 +63,7 @@ public class ParserSLRGenerator {
           
            Estado actual = pila.pop();
            HashSet<String> alfabeto = calcularAlfabeto(actual);
-           System.out.println(alfabeto);
+           //System.out.println(alfabeto);
            LR.getAlfabeto().addAll(alfabeto);
            for (String letra: alfabeto){//hacer transiciones con cada letra de los cuerpos.
                 //buscar las transiciones de cada cuerpo
@@ -71,10 +77,14 @@ public class ParserSLRGenerator {
                     * un símbolo. Es necesario eliminar temporalmente los espacios 
                     * para poder encontrar el item correcto.
                     */
-                   for (int index = search1.getCuerpo().replaceAll("\\s", "").indexOf(letra);
-                        index >= 0;
-                        index =  search1.getCuerpo().replaceAll("\\s", "").indexOf(letra,index+1))
-                   {
+                    String[] parts = search1.getCuerpo().split(" ");
+                    int index = 0;
+                    for (String part : parts)
+                        
+                    {
+                       if (part.equals(letra)){
+                           //int index =  Arrays.asList(parts).indexOf(letra);
+                     
                         if ((int) search1.getItem().getPosicion() == index) {
                             Produccion modificar = (Produccion) search1.clonar();
                           
@@ -82,12 +92,15 @@ public class ParserSLRGenerator {
                             //System.out.println(search1);
                             //System.out.println((int)modificar.getItem().getPosicion()+letra.length());
                             //System.out.println(search1.getCuerpo().split(" ").length);
-                            modificar.getItem().setPosicion((int)modificar.getItem().getPosicion()+letra.length());
+                            
+                            modificar.getItem().setPosicion((int)modificar.getItem().getPosicion()+1);
                             System.out.println(modificar);
                            
                             estadosNuevos.addAll(closure(modificar));
+                            globalClosure.clear();
                         }
-                       
+                       }
+                       index++;
                    }
                 }
                 if (!acumuladorEstados.contains(estadosNuevos)&&!estadosNuevos.isEmpty()){
@@ -105,14 +118,14 @@ public class ParserSLRGenerator {
                 }
               
            }
-           System.out.println(LR);
+        
            
            
        }
        
-        LR.setTipo("LR(0)");
+        LR.setTipo("SLR");
         System.out.println(LR);
-        crearArchivos(LR, 0, 0, "Automata LR(0)");
+        crearArchivos(LR, 0, 0, "Automata SLR");
         
     }
        /**
@@ -157,7 +170,7 @@ public class ParserSLRGenerator {
         for (Produccion produccion : prod) {
             String[] parts = produccion.getCuerpo().split(" ");
             for (String part : parts) {
-                System.out.println(part);
+               // System.out.println(part);
                 if (!part.equals("$")&&!part.equals("ε")) {//se omite el símbolo de dólar.
                     alfabeto.add(part);
                 }
@@ -173,12 +186,17 @@ public class ParserSLRGenerator {
     public HashSet closure(Produccion I){
         HashSet resultado = new HashSet();
         resultado.add(I);
+        String rev = I.getCuerpo().substring((int)I.getItem().getPosicion());
+        String[] revArray = rev.split(" ");
         String[] parts = I.getCuerpo().split(" ");
         //falta arreglar este closure para cualquier produccion
         //tengo que buscar el no-terminal actual del item
         //System.out.println(I);
         //System.out.println(I.getItem().getPosicion());
        //si el item es el inmediato
+        if (globalClosure.contains(I))
+            return new HashSet();
+        globalClosure.add(I);
         if ((int)I.getItem().getPosicion()<parts.length){
             if (!this.terminal(parts[(int)I.getItem().getPosicion()])){//si no es terminal
                 ArrayList<Produccion> innerProd = searchProductions(parts[(int)I.getItem().getPosicion()]);//busca las producciones
@@ -228,12 +246,12 @@ public class ParserSLRGenerator {
      * @param productions
      * @return 
      */
-    public ArrayList<Produccion> searchProductionCuerpo(String cuerpo,HashSet<Produccion> productions){
+    public ArrayList<Produccion> searchProductionCuerpo(String letra,HashSet<Produccion> productions){
         ArrayList<Produccion> prod = new ArrayList();
         for (Produccion buscarEnProd: productions){
             String[] parts = buscarEnProd.getCuerpo().split(" ");
             for (int j=0;j<parts.length;j++){
-               if (parts[j].equals(cuerpo))
+               if (parts[j].equals(letra))
                 prod.add(buscarEnProd);
             }
            
@@ -362,7 +380,7 @@ public class ParserSLRGenerator {
         for (String letra: alfabeto){
            acum += letra + "\t";
         }
-       // System.out.println(acum);
+        // System.out.println(acum);
         String tabla = "";
         int anterior = 0;
         for (int k = 0;k<tablaParseo.size();k++){
@@ -460,6 +478,12 @@ public class ParserSLRGenerator {
         try{
             while(true){
                 Character ch = input.charAt(i);
+                while (!LR.getAlfabeto().contains(ch)){//si i llega al input.length() significa que no pertenece al alfabeto
+                    i++;
+                    if (i != input.length())
+                        ch = input.charAt(i);
+                }
+                ch = input.charAt(i);
                 int actual = (int)estados.peek();
                 ItemTablaParseo encontrado = buscarItem(ch.toString(),actual);
                 String op = (String)encontrado.getOperacion();
@@ -713,6 +737,14 @@ public class ParserSLRGenerator {
          "\t"+ "\t"+"try{"+"\n"+
          "\t"+"\t"+ "\t"+"while(true){"+"\n"+
              "\t"+"\t"+ "\t"+ "\t"+"Character ch = input.charAt(i);"+"\n"+
+             "\t"+"\t"+ "\t"+ "\t"+"while (!SLR.getAlfabeto().contains(ch)){//si i llega al input.length() significa que no pertenece al alfabeto"+"\n"+
+                    "\t"+"\t"+"\t"+"\t"+"\t"+"i++;"+"\n"+
+                    "\t"+"\t"+"\t"+"\t"+"\t"+ "if (i != input.length())"+"\n"+
+                    "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"ch = input.charAt(i);"+"\n"+
+                    "\t"+"\t"+"\t"+"\t"+"\t"+ "else"+"\n"+
+                    "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"break;"+"\n"+
+                    
+            "\t"+"\t"+"\t"+"\t"+"}"+"\n"+
             "\t"+ "\t"+ "\t"+ "\t"+"int actual = (int)estados.peek();"+"\n"+
              "\t"+"\t"+ "\t"+ "\t"+"ItemTablaParseo encontrado = buscarItem(ch.toString(),actual);"+"\n"+
              "\t"+"\t"+ "\t"+ "\t"+"String op = (String)encontrado.getOperacion();"+"\n"+

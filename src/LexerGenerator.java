@@ -83,6 +83,9 @@ public class LexerGenerator implements RegexConstants{
             "import java.util.ArrayList;"+"\n"+
             "import java.util.TreeMap;"+"\n"+
             "import java.util.HashMap;"+"\n"+
+            "import java.io.FileOutputStream;"+"\n"+
+            "import java.io.IOException;"+"\n"+
+            "import java.io.ObjectOutputStream;"+"\n"+
           
            
           
@@ -95,7 +98,7 @@ public class LexerGenerator implements RegexConstants{
             "\t"+"private ArrayList keywords = new ArrayList();"+"\n");
            
             scanner_total +=
-            "\t"+"private String ignoreSets = \""+ignoreSets.substring(0, ignoreSets.length()-1)+"\";"+"\n"+
+            "\t"+"private String ignoreSets = \""+" |	"+"\";"+"\n"+
             "\t"+"private ArrayList<Token> tokensAcumulados = new ArrayList();"+"\n"+    
             "\t"+"private ArrayList<Token> tokens = new ArrayList();"+"\n"+
             "\t"+"private String tk  = \"\";"+"\n"+
@@ -166,7 +169,7 @@ public class LexerGenerator implements RegexConstants{
                 int lineaActual = entry.getKey();
                 while(true){
                     lineaActual = avanzarLinea(lineaActual);
-                    if (this.cadena.get(lineaActual).contains("KEYWORDS"))
+                    if (this.cadena.get(lineaActual).contains("KEYWORDS")||this.cadena.get(lineaActual).contains("TOKENS"))
                         break;
                     String valor = this.cadena.get(lineaActual);
                     
@@ -231,7 +234,8 @@ public class LexerGenerator implements RegexConstants{
                 int lineaActual = entry.getKey();
                 while(true){
                     lineaActual = avanzarLinea(lineaActual);
-                    if (this.cadena.get(lineaActual).contains("END")||this.cadena.get(lineaActual).contains("IGNORE"))
+                    if (this.cadena.get(lineaActual).contains("END")||this.cadena.get(lineaActual).contains("IGNORE")
+                        ||this.cadena.get(lineaActual).contains("PRODUCTIONS"))
                         break;
                     String valor = this.cadena.get(lineaActual);
                     
@@ -299,12 +303,17 @@ public class LexerGenerator implements RegexConstants{
                  //quitar doble quotes
                  //quitar simple quotes
                    
-                    
-                  
+                    if (revisar.startsWith("'"))
+                        revisar = revisar.substring(1);
+                    if (revisar.equals(charCerrarParentesis+""))
+                        revisar = ")";
+                    if (revisar.equals(charAbrirParentesis+""))
+                        revisar = "(";
                     revisar = revisar.replaceAll("\\s","");
                     //System.out.println(ident);
                    // System.out.println(revisar);
                     tokensExpr.put(ident.trim(), revisar);
+                  
                     
                     System.out.println(revisar);
                     
@@ -1061,7 +1070,19 @@ public class LexerGenerator implements RegexConstants{
                "\t"+"\t"+"System.out.println(tokens);"+"\n"+
                  "\t"+"\t"+"tokensAcumulados.addAll(tokens);"+"\n"+
         "\t"+"\t"+"}"+"\n"+
-                
+                  "\t"+"try"+"\n"+
+          "\t"+"{"+"\n"+
+          "\t"+ "\t"+"FileOutputStream fileOut ="+"\n"+
+          "\t"+ "\t"+"new FileOutputStream(\"../ParserGenerado/Tokens.ser\");"+"\n"+
+          "\t"+ "\t"+"ObjectOutputStream out = new ObjectOutputStream(fileOut);"+"\n"+
+          "\t"+ "\t"+"out.writeObject(tokensAcumulados);"+"\n"+
+          "\t"+ "\t"+"out.close();"+"\n"+
+          "\t"+ "\t"+"fileOut.close();"+"\n"+
+          "\t"+ "\t"+"System.out.printf(\"Serialized data is saved in /ParserGenerado/Tokens.ser\");"+"\n"+
+         "\t"+"}catch(IOException i)"+"\n"+
+         "\t"+"{"+"\n"+
+             "\t"+ "\t"+"i.printStackTrace();"+"\n"+
+         "\t"+"}"+"\n"+
                
               
     "\t"+"}"+"\n"+"\n"+"\n";
@@ -1247,6 +1268,7 @@ public class LexerGenerator implements RegexConstants{
             "import java.util.HashSet;"+"\n"+
             "import java.util.Iterator;"+"\n"+
             "import java.util.Stack;"+"\n"+
+          
 
             "/**"+"\n"+
             " * Clase para utilizar el metodo de move, e-closure y simulacion de"+"\n"+
@@ -1431,13 +1453,14 @@ public class LexerGenerator implements RegexConstants{
         "import java.util.HashSet;"+"\n"+
         "import java.util.Objects;"+"\n"+
         "import java.util.TreeMap;"+"\n"+
+        "import java.io.Serializable;"+"\n"+
 
         "/**"+"\n"+
         " *"+"\n"+
         " * @author Pablo"+"\n"+
         " * @param <T>"+"\n"+
         " */"+"\n"+
-        "public class Token<T> {"+"\n"+
+        "public class Token<T> implements Serializable {"+"\n"+
 
             "\t"+"private T id;"+"\n"+
             "\t"+"private T lexema;"+"\n"+
@@ -1524,6 +1547,7 @@ public class LexerGenerator implements RegexConstants{
         "}"+"\n";
         ReadFile fileCreator = new ReadFile();
         fileCreator.crearArchivo(token, "Token");
+        fileCreator.crearArchivoParser(token,"Token");
             
             
     }

@@ -24,6 +24,37 @@ public class FileCreator {
     public FileCreator(){
         
     }
+    
+    public void crearArchivoParser(String output, double tiempoCreacion, double tiempoSimulacion,String tipoAutomata){
+        try {
+            
+                
+                //output += "\r\n"+"\r\n"+"\r\n"+leerArchivo();
+                File file;
+                File dummy = new File("");
+                String path = dummy.getAbsolutePath();
+                String nombreArchivo = tipoAutomata+".txt";
+               
+                file = new File(nombreArchivo);
+                // if FileCreator doesnt exists, then create it
+               
+                
+               
+                FileWriter fw = new FileWriter(path+"/ParserGenerado/"+nombreArchivo);
+                BufferedWriter bw = new BufferedWriter(fw);
+               
+                bw.write(output+"\r\n");
+                bw.write("Tiempo Creación: "+tiempoCreacion+" ns"+"\r\n");
+                bw.write("Tiempo Simulacion: " + tiempoSimulacion+" ns"+"\r\n");
+
+                bw.close();
+
+                System.out.println("Se ha creado el archivo " + nombreArchivo+" exitosamente");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
      
     public void crearArchivo(String output, double tiempoCreacion, double tiempoSimulacion,String tipoAutomata){
         try {

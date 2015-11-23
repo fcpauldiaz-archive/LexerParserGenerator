@@ -19,6 +19,7 @@ public class Produccion<T> implements Serializable{
     private T cabeza;
     private T cuerpo;
     private Item item;
+    private T lookahead;
     
     public Produccion(){
         
@@ -36,6 +37,13 @@ public class Produccion<T> implements Serializable{
         this.cabeza = cabeza;
         this.cuerpo = cuerpo;
         this.item = item.clonar();
+    }
+
+    public Produccion(T cabeza, T cuerpo, Item item, T lookahead) {
+        this.cabeza = cabeza;
+        this.cuerpo = cuerpo;
+        this.item = item;
+        this.lookahead = lookahead;
     }
     
     
@@ -108,24 +116,40 @@ public class Produccion<T> implements Serializable{
         String[] parts = cuerpo.toString().split(" ");
         return cabeza.toString().trim().equals(parts[0].trim());
     }
+
+    public T getLookahead() {
+        return lookahead;
+    }
+
+    public void setLookahead(T lookahead) {
+        this.lookahead = lookahead;
+    }
     
     
     
     @Override
     public String toString() {
-        return cabeza + " => " + cuerpoItem();
+        if (lookahead == null)
+            return cabeza + " => " + cuerpoItem();
+        return cabeza + " => " + cuerpoItem()+":"+lookahead;
     }
     
     public String cuerpoItem(){
         String returnString = "";
-        returnString = cuerpo.toString().replaceAll("\\s","").substring(0,(int)item.getPosicion())+
-                "•"+cuerpo.toString().replaceAll("\\s","").substring(((int)item.getPosicion()));
-       
-        
-       if (cuerpo.toString().length()-countSpaces(cuerpo.toString())==(int)item.getPosicion())
+        String[] parts = this.cuerpo.toString().split(" ");
+        for (int i = 0;i<parts.length;i++){
+            if (i == (int)item.getPosicion())
+                    returnString += "•";
+            if (!parts[i].isEmpty()){
+                returnString += parts[i].replace("\\s", "") + " ";
+               
+            }
+            
+        }
+        if (cuerpo.toString().length()-countSpaces(cuerpo.toString())==(int)item.getPosicion())
             returnString = cuerpo.toString()+"•";
         
-        return returnString.replaceAll("\\s","");
+        return returnString;
     }
     public int countSpaces(String string) {
         int spaces = 0;

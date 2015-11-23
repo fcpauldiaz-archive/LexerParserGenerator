@@ -58,6 +58,7 @@ igual   = "=".
 
 TOKENS
 
+id = {digit}.
 letter = letter{letter} EXCEPT KEYWORDS.
 ident1 = letter {'_'} '*'.
 number = digit {digit}
@@ -104,9 +105,9 @@ IGNORE " ".
 
 PRODUCTIONS
 
-S = P $.
-P = ( P ) P.
-P = ε.
+S' = S.
+S = C C.
+C = c C | d.
 
 
 

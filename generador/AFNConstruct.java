@@ -9,13 +9,14 @@
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Stack;
+import java.io.Serializable;
 
 /**
  * Clase que implementa el algoritmo de Thomson
  * @author Pablo
  * @param <T>
  */
-public class AFNConstruct<T> {
+public class AFNConstruct<T> implements Serializable {
     
    
     private Automata afn;

@@ -19,6 +19,7 @@ public class Produccion<T> implements Serializable{
     private T cabeza;
     private T cuerpo;
     private Item item;
+    private T lookahead;
     
     public Produccion(){
         
@@ -107,6 +108,14 @@ public class Produccion<T> implements Serializable{
     public boolean isRecursivaIzquierda(){
         String[] parts = cuerpo.toString().split(" ");
         return cabeza.toString().trim().equals(parts[0].trim());
+    }
+    
+     public T getLookahead() {
+        return lookahead;
+    }
+
+    public void setLookahead(T lookahead) {
+        this.lookahead = lookahead;
     }
     
     

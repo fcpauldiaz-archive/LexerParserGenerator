@@ -4,7 +4,7 @@
 * 02/07/2015
 */
 
-
+import java.io.Serializable;
 
 /**
  * Estructura de datos para modelar una transición de un autómata
@@ -12,7 +12,7 @@
  * @param <T>
  * @since 01/08/2015
  */
-public class Transicion<T> {
+public class Transicion<T> implements Serializable {
     
     //estado inicial de la transicion
     private Estado inicio;

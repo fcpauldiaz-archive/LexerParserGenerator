@@ -7,12 +7,13 @@
 
 
 import java.util.ArrayList;
+import java.io.Serializable;
 
 /**
  * Clase para simular un estado de un autómata
  * @author Pablo
  */
-public class Estado<T> {
+public class Estado<T> implements Serializable{
 
     //atributos
     

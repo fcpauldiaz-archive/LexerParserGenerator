@@ -1,0 +1,35 @@
+-------SLR---------
+Alfabeto [T, E, F, (, ), *, +, id]
+Estado inicial [T => •F , F => •( E ) , E => •T , T => •T * F , E => •E + T , F => •id , E' => •E $ ]
+Conjutos de estados de aceptacion []
+Conjunto de Estados [[T => •F , F => •( E ) , E => •T , T => •T * F , E => •E + T , F => •id , E' => •E $ ], [E => T•, T => T •* F ], [E' => E •$ , E => E •+ T ], [T => F•], [T => •F , F => •( E ) , E => •T , F => ( •E ) , T => •T * F , E => •E + T , F => •id ], [F => id ], [F => ( E •) , E => E •+ T ], [F => ( E )•], [T => •F , F => •( E ) , T => •T * F , F => •id , E => E + •T ], [E => E + T•, T => T •* F ], [F => •( E ) , F => •id , T => T * •F ], [T => T * F•]]
+Conjunto de transiciones: 
+([T => •F , F => •( E ) , E => •T , T => •T * F , E => •E + T , F => •id , E' => •E $ ]-T-[E => T•, T => T •* F ])
+([T => •F , F => •( E ) , E => •T , T => •T * F , E => •E + T , F => •id , E' => •E $ ]-E-[E' => E •$ , E => E •+ T ])
+([T => •F , F => •( E ) , E => •T , T => •T * F , E => •E + T , F => •id , E' => •E $ ]-F-[T => F•])
+([T => •F , F => •( E ) , E => •T , T => •T * F , E => •E + T , F => •id , E' => •E $ ]-(-[T => •F , F => •( E ) , E => •T , F => ( •E ) , T => •T * F , E => •E + T , F => •id ])
+([T => •F , F => •( E ) , E => •T , T => •T * F , E => •E + T , F => •id , E' => •E $ ]-id-[F => id ])
+([E => T•, T => T •* F ]-*-[F => •( E ) , F => •id , T => T * •F ])
+([E' => E •$ , E => E •+ T ]-+-[T => •F , F => •( E ) , T => •T * F , F => •id , E => E + •T ])
+([T => •F , F => •( E ) , E => •T , F => ( •E ) , T => •T * F , E => •E + T , F => •id ]-T-[E => T•, T => T •* F ])
+([T => •F , F => •( E ) , E => •T , F => ( •E ) , T => •T * F , E => •E + T , F => •id ]-E-[F => ( E •) , E => E •+ T ])
+([T => •F , F => •( E ) , E => •T , F => ( •E ) , T => •T * F , E => •E + T , F => •id ]-F-[T => F•])
+([T => •F , F => •( E ) , E => •T , F => ( •E ) , T => •T * F , E => •E + T , F => •id ]-(-[T => •F , F => •( E ) , E => •T , F => ( •E ) , T => •T * F , E => •E + T , F => •id ])
+([T => •F , F => •( E ) , E => •T , F => ( •E ) , T => •T * F , E => •E + T , F => •id ]-id-[F => id ])
+([F => ( E •) , E => E •+ T ]-)-[F => ( E )•])
+([F => ( E •) , E => E •+ T ]-+-[T => •F , F => •( E ) , T => •T * F , F => •id , E => E + •T ])
+([T => •F , F => •( E ) , T => •T * F , F => •id , E => E + •T ]-T-[E => E + T•, T => T •* F ])
+([T => •F , F => •( E ) , T => •T * F , F => •id , E => E + •T ]-F-[T => F•])
+([T => •F , F => •( E ) , T => •T * F , F => •id , E => E + •T ]-(-[T => •F , F => •( E ) , E => •T , F => ( •E ) , T => •T * F , E => •E + T , F => •id ])
+([T => •F , F => •( E ) , T => •T * F , F => •id , E => E + •T ]-id-[F => id ])
+([E => E + T•, T => T •* F ]-*-[F => •( E ) , F => •id , T => T * •F ])
+([F => •( E ) , F => •id , T => T * •F ]-F-[T => T * F•])
+([F => •( E ) , F => •id , T => T * •F ]-(-[T => •F , F => •( E ) , E => •T , F => ( •E ) , T => •T * F , E => •E + T , F => •id ])
+([F => •( E ) , F => •id , T => T * •F ]-id-[F => id ])
+
+Lenguaje r: null
+Cadena w ingresada: null
+Resultado: null
+
+Tiempo Creación: 0.0 ns
+Tiempo Simulacion: 0.0 ns

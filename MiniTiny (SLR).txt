@@ -1,39 +1,39 @@
 COMPILER MiniTiny
 
-	CHARACTERS
-		letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
-		digit = "0123456789".
+CHARACTERS
+letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
+digit = "0123456789".
 
-	TOKENS
-		number = digit{digit}.
-		id = letter{letter}.
-		pc = ';'.
-		assignop = ":=".
-		lt = '<'.
-		eq = '='.
-		sum = '+'.
-		res = '-'.
-		mul = '*'.
-		div = '/'.
-		op = '('.
-		cp = ')'.
-		
-	PRODUCTIONS
-		program = stmtSeq.
-		stmtSeq = stmtSeq pc stmt | stmt.
-		stmt = assign_stmt.
-		assign_stmt = id assign_op exp.
-		exp = simpleExp lt simpleExp |
-			  simpleExp eq simpleExp |
-			  simpleExp.
-		simpleExp = simpleExp sum term |
-					 simpleExp res term |
-					 term.
-		term = term mul factor |
-			   term div factor |
-			   factor.
-		factor = op exp cp |
-				 number |
-				 id.
+TOKENS
+number = digit{digit}.
+id = letter{letter}.
+pc = ';'.
+assignop = ":=".
+lt = '<'.
+eq = '='.
+sum = '+'.
+res = '-'.
+mul = '*'.
+div = '/'.
+op = '('.
+cp = ')'.
+
+PRODUCTIONS
+program = stmtSeq.
+stmtSeq = stmtSeq pc stmt | stmt.
+stmt = assign_stmt.
+assign_stmt = id assign_op exp.
+exp = simpleExp lt simpleExp |
+          simpleExp eq simpleExp |
+          simpleExp.
+simpleExp = simpleExp sum term |
+                         simpleExp res term |
+                         term.
+term = term mul factor |
+           term div factor |
+           factor.
+factor = op exp cp |
+                 number |
+                 id.
 
 END MiniTiny.

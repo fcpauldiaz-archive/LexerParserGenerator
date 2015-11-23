@@ -8,13 +8,14 @@
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.io.Serializable;
 
 
 /**
  * Clase para modelar un automata finito determinista o no determnista
  * @author Pablo
  */
-public class Automata {
+public class Automata implements Serializable{
     
     //compuesto por un estado inicial
     private Estado inicial;

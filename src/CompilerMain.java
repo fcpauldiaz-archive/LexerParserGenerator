@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.HashMap;
 
 
+
 /**
  *
  * @author Pablo
@@ -55,14 +56,17 @@ public class CompilerMain {
         
         System.out.println("Cantidad Errores: " + errores.getCount());
      
-       // lexer.inputCal();
+      
        
-        ParserSLRGenerator g = new ParserSLRGenerator(lexer.getProducciones(),lexer,generator.getNombreArchivo());
+       /* ParserSLRGenerator g = new ParserSLRGenerator(lexer.getProducciones(),lexer,generator.getNombreArchivo());
         g.constructLR();
         g.crearTablaParseo();
         //g.procesoParseo("(()())()");
         g.generarParser();
-        g.serialize();
+        g.serialize();*/
+        
+        ParserLRUno LR = new ParserLRUno(lexer.getProducciones(),lexer);
+        LR.construirAutomata();
         
         }
     }

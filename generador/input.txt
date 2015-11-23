@@ -14,8 +14,8 @@ AB
 ifwhile2if@
 123ABC(H)
 if ( x == y ) {
-boolean f
-f = true
+	boolean f
+	f = true
 }
 x--
 x++

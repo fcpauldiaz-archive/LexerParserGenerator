@@ -246,12 +246,14 @@ public class LexerSyntax implements RegexConstants{
         //ScannerSpecification
         
         ArrayList scan = scannerSpecification(lineaActual);
-        if (scan.isEmpty())
+        if (scan.isEmpty()){
             output=false;
-        
+        }
+        else
+            lineaActual = (int)scan.get(0);
         //ParserSpecification
-     
-       ArrayList parser = parserSpecification((int)scan.get(0));
+       
+       ArrayList parser = parserSpecification(lineaActual);
        
         //END File
         lineaActual = (int)parser.get(0);
@@ -364,17 +366,17 @@ public class LexerSyntax implements RegexConstants{
         else{
             Stack<String> pilaOR = new Stack();
             int cantOr = count(cadenaActual,'|');
-            String cadenaRevisar =  cadenaActual.substring(indexSearch,cadenaActual.indexOf(".")-1);
+            String cadenaRevisar =  cadenaActual.substring(indexSearch,cadenaActual.indexOf("."));
             pilaOR.push(cadenaRevisar);
             while (!pilaOR.isEmpty()){
                 cadenaRevisar = pilaOR.pop();
                 if ( cadenaRevisar.contains("|")){
                     producciones.add(new Produccion(cadenaActual.substring(0,indexSearch-2),
-                            cadenaRevisar.substring(0,cadenaRevisar.indexOf("|"))
+                            cadenaRevisar.substring(0,cadenaRevisar.indexOf("|")).trim()
                     ));
                     //System.out.println(cadenaRevisar);
                     if (!cadenaRevisar.isEmpty())
-                        pilaOR.push(cadenaRevisar.substring(cadenaRevisar.indexOf("|")+1));
+                        pilaOR.push(cadenaRevisar.substring(cadenaRevisar.indexOf("|")+1).trim());
                 }
                 else{
                 producciones.add(new Produccion(cadenaActual.substring(0,indexSearch-2),
@@ -455,7 +457,7 @@ public class LexerSyntax implements RegexConstants{
     public TreeSet first(String input){
         input = input.trim();
         if (!input.isEmpty())
-            input = input.substring(0,1);
+            input = input.split(" ")[0];
         TreeSet returnArray = new TreeSet();
         if (specificProduction(input,EPSILON)){
             returnArray.add(EPSILON);
@@ -667,9 +669,10 @@ public class LexerSyntax implements RegexConstants{
         //[KEYWRORDS]
         lineaActual = avanzarLinea(lineaActual);
          if (!this.cadena.get(lineaActual).contains("KEYWORDS")){
-            CompilerMain.errores.SynErr(lineaActual, " No contiene la palabra KEYWORDS");
-            return new ArrayList();
-        }
+             lineaActual = retrocederLinea(lineaActual);
+            //CompilerMain.errores.SynErr(lineaActual, " No contiene la palabra KEYWORDS");
+           // return new ArrayList();
+        }else{
         lineaActual = avanzarLinea(lineaActual);
         //[KEYWORDS = {KeyWordDeclaration}]
         while (true){
@@ -681,7 +684,7 @@ public class LexerSyntax implements RegexConstants{
             lineaActual = avanzarLinea(lineaActual);
             
         }
-        
+         } 
          lineaActual = avanzarLinea(lineaActual);
          if (!this.cadena.get(lineaActual).contains("TOKENS")){
             CompilerMain.errores.SynErr(lineaActual, "NO Contiene la palabra TOKENS");
@@ -785,6 +788,9 @@ public class LexerSyntax implements RegexConstants{
      */
     public boolean tokenExpr(int lineaActual,String cadenaRevisar){
         String antesRevisar = cadenaRevisar;
+        
+        if (!cadenaRevisar.contains("\"")&& !cadenaRevisar.contains("'")){
+        System.out.println(cadenaRevisar);
         cadenaRevisar = cadenaRevisar.replaceAll("\\{", charAbrirParentesis+"");
         cadenaRevisar = cadenaRevisar.replaceAll("\\}", charCerrarParentesis+""+charKleene);
         cadenaRevisar = cadenaRevisar.replaceAll("\\[", charAbrirParentesis+"");
@@ -803,6 +809,7 @@ public class LexerSyntax implements RegexConstants{
             CompilerMain.errores.SynErr(lineaActual, "Expresión mal ingresada"+"\n" + antesRevisar);
             return false;
         }    
+        }
          
      return true;   
     }
