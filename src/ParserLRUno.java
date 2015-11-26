@@ -20,6 +20,7 @@ public class ParserLRUno {
     private LexerSyntax syntax;
     private ArrayList globalClosure = new ArrayList();
     private Automata LR;
+    private HashSet<Produccion> globalActual;
     
     public ParserLRUno(ArrayList<Produccion> producciones,LexerSyntax syntax) {
         this.producciones = producciones;
@@ -30,9 +31,9 @@ public class ParserLRUno {
         //primero poner dolar como lookahead al inicial
         producciones.get(0).setLookahead("$");
         //se empieza por closure del símbolo inicial.
-        HashSet closureInicial =  closure(producciones.get(0));
-        ArrayList closureModificado = generarNuevasProducciones(new ArrayList(closureInicial));
-        System.out.println(closureInicial);
+        HashSet closureInicial =  closureInicial(producciones.get(0));
+        HashSet closureModificado =  new HashSet(generarNuevasProducciones(new ArrayList(closureInicial)));
+        System.out.println(closureModificado);
         LR = new Automata();
        //crear y agregar el estado inicial al autómata
        Estado inicial = new Estado(closureModificado);
@@ -79,7 +80,7 @@ public class ParserLRUno {
                             modificar.getItem().setPosicion((int)modificar.getItem().getPosicion()+1);
                             System.out.println(modificar);
                           
-                            estadosNuevos.addAll(new HashSet(generarNuevasProducciones(new ArrayList(closure(modificar)))));
+                            estadosNuevos.addAll(new HashSet(generarNuevasProducciones(new ArrayList(preClosure(modificar,actual)))));
                             //estadosNuevos.addAll(closure(modificar));
                             globalClosure.clear();
                         }
@@ -93,6 +94,7 @@ public class ParserLRUno {
                   actual.setTransiciones(new Transicion(actual,nuevo,letra));
                   LR.addEstados(nuevo);
                   pila.push(nuevo);
+                  System.out.println(LR);
                 }
                 //condición para estados repetidos
                 else if (acumuladorEstados.contains(estadosNuevos)&&!estadosNuevos.isEmpty()){
@@ -192,13 +194,62 @@ public class ParserLRUno {
         copy.addAll(copyA);
         return copy;
     }
-    
+    public HashSet preClosure(Produccion I,Estado actual){
+        HashSet<Produccion> ac = (HashSet)actual.getId();
+        globalActual = ac;
+        return closure(I);
+    }
      /**
      * Método que realiza el algoritmo de Closure sobre una producción.
      * @param I 
      * @return Conjunto con las producciones computadas.
      */
     public HashSet closure(Produccion I){
+        HashSet resultado = new HashSet();
+        resultado.add(I);
+        //calcular X y Beta
+        String beta = "";
+        if ((int)I.getItem().getPosicion()+1>=I.getCuerpo().split(" ").length)
+            beta = "";
+        else
+            beta = I.getCuerpo().split(" ")[(int)I.getItem().getPosicion()+1];
+        System.out.println(I.getLookahead());
+        TreeSet<String> nuevoLookahead = syntax.first(beta+(String)I.getLookahead());
+        String lookaheadString = "";
+        for (String st : nuevoLookahead){
+            lookaheadString += " "+st;
+        }
+       
+        String rev = I.getCuerpo().substring((int)I.getItem().getPosicion());
+        String[] revArray = rev.split(" ");
+        String[] parts = I.getCuerpo().split(" ");
+        //falta arreglar este closure para cualquier produccion
+        //tengo que buscar el no-terminal actual del item
+        //System.out.println(I);
+        //System.out.println(I.getItem().getPosicion());
+       //si el item es el inmediato
+        if (globalClosure.contains(I))
+            return new HashSet();
+        globalClosure.add(I);
+        if ((int)I.getItem().getPosicion()<parts.length){
+            if (!this.terminal(parts[(int)I.getItem().getPosicion()])){//si no es terminal
+                ArrayList<Produccion> innerProd = searchProductionsSpecific(parts[(int)I.getItem().getPosicion()], new ArrayList(globalActual));//busca las producciones
+                innerProd.remove(I);
+                for (int j = 0;j<innerProd.size();j++){
+                    Produccion pnew = innerProd.get(j).clonar();
+                    pnew.setLookahead(lookaheadString);
+                    resultado.addAll(closure(pnew));//busca recursivamente.
+                }
+            }
+        }
+        return resultado;
+    }
+     /**
+     * Método que realiza el algoritmo de Closure sobre una producción.
+     * @param I 
+     * @return Conjunto con las producciones computadas.
+     */
+    public HashSet closureInicial(Produccion I){
         HashSet resultado = new HashSet();
         resultado.add(I);
         //calcular X y Beta
@@ -231,13 +282,13 @@ public class ParserLRUno {
                 innerProd.remove(I);
                 for (int j = 0;j<innerProd.size();j++){
                     innerProd.get(j).setLookahead(lookaheadString);
-                    resultado.addAll(closure(innerProd.get(j)));//busca recursivamente.
+                    resultado.addAll(closureInicial(innerProd.get(j)));//busca recursivamente.
                 }
             }
         }
         return resultado;
     }
-      /**
+     /**
      * devuleve un array con las producciones que tengan al input como cabeza
      * @param cabeza
      * @return 
@@ -247,6 +298,20 @@ public class ParserLRUno {
         for (int i = 0 ;i<producciones.size();i++){
             if (producciones.get(i).getCabeza().equals(cabeza))
                 prod.add(producciones.get(i));
+        }
+        return prod;
+    }
+      /**
+     * devuleve un array con las producciones que tengan al input como cabeza
+     * @param cabeza
+     * @param prods
+     * @return 
+     */
+    public ArrayList<Produccion> searchProductionsSpecific(String cabeza,ArrayList<Produccion> prods){
+        ArrayList<Produccion> prod = new ArrayList();
+        for (int i = 0 ;i<prods.size();i++){
+            if (prods.get(i).getCabeza().equals(cabeza))
+                prod.add(prods.get(i));
         }
         return prod;
     }
@@ -261,6 +326,7 @@ public class ParserLRUno {
     
        /**
      * devuleve un array con las producciones que tengan al input como cuerpo.
+     * @param letra
      * @param cuerpo
      * @param productions
      * @return 

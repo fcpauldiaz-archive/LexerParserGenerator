@@ -46,56 +46,27 @@ public class LexerAnalyzerParser {
 		generarProducciones();
 	}
 	public void generarItems(){
-		tablaParseo.add(new ItemTablaParseo(0,"T","goto",1));
-		tablaParseo.add(new ItemTablaParseo(0,"E","goto",2));
-		tablaParseo.add(new ItemTablaParseo(0,"F","goto",3));
-		tablaParseo.add(new ItemTablaParseo(0,"(","shift",4));
-		tablaParseo.add(new ItemTablaParseo(0,"id","shift",5));
-		tablaParseo.add(new ItemTablaParseo(1,"*","shift",10));
-		tablaParseo.add(new ItemTablaParseo(1,"$","r",2));
-		tablaParseo.add(new ItemTablaParseo(1,")","r",2));
-		tablaParseo.add(new ItemTablaParseo(1,"+","r",2));
-		tablaParseo.add(new ItemTablaParseo(2,"+","shift",8));
-		tablaParseo.add(new ItemTablaParseo(2,"$","accept",1));
-		tablaParseo.add(new ItemTablaParseo(3,"$","r",4));
-		tablaParseo.add(new ItemTablaParseo(3,")","r",4));
-		tablaParseo.add(new ItemTablaParseo(3,"*","r",4));
-		tablaParseo.add(new ItemTablaParseo(3,"+","r",4));
-		tablaParseo.add(new ItemTablaParseo(4,"T","goto",1));
-		tablaParseo.add(new ItemTablaParseo(4,"E","goto",6));
-		tablaParseo.add(new ItemTablaParseo(4,"F","goto",3));
-		tablaParseo.add(new ItemTablaParseo(4,"(","shift",4));
-		tablaParseo.add(new ItemTablaParseo(4,"id","shift",5));
-		tablaParseo.add(new ItemTablaParseo(6,")","shift",7));
-		tablaParseo.add(new ItemTablaParseo(6,"+","shift",8));
-		tablaParseo.add(new ItemTablaParseo(7,"$","r",5));
-		tablaParseo.add(new ItemTablaParseo(7,")","r",5));
-		tablaParseo.add(new ItemTablaParseo(7,"*","r",5));
-		tablaParseo.add(new ItemTablaParseo(7,"+","r",5));
-		tablaParseo.add(new ItemTablaParseo(8,"T","goto",9));
-		tablaParseo.add(new ItemTablaParseo(8,"F","goto",3));
-		tablaParseo.add(new ItemTablaParseo(8,"(","shift",4));
-		tablaParseo.add(new ItemTablaParseo(8,"id","shift",5));
-		tablaParseo.add(new ItemTablaParseo(9,"*","shift",10));
-		tablaParseo.add(new ItemTablaParseo(9,"$","r",1));
-		tablaParseo.add(new ItemTablaParseo(9,")","r",1));
-		tablaParseo.add(new ItemTablaParseo(9,"+","r",1));
-		tablaParseo.add(new ItemTablaParseo(10,"F","goto",11));
-		tablaParseo.add(new ItemTablaParseo(10,"(","shift",4));
-		tablaParseo.add(new ItemTablaParseo(10,"id","shift",5));
-		tablaParseo.add(new ItemTablaParseo(11,"$","r",3));
-		tablaParseo.add(new ItemTablaParseo(11,")","r",3));
-		tablaParseo.add(new ItemTablaParseo(11,"*","r",3));
-		tablaParseo.add(new ItemTablaParseo(11,"+","r",3));
+		tablaParseo.add(new ItemTablaParseo(0,"P","goto",1));
+		tablaParseo.add(new ItemTablaParseo(0,"(","shift",2));
+		tablaParseo.add(new ItemTablaParseo(0,"$","r",2));
+		tablaParseo.add(new ItemTablaParseo(0,")","r",2));
+		tablaParseo.add(new ItemTablaParseo(1,"$","accept",1));
+		tablaParseo.add(new ItemTablaParseo(2,"P","goto",3));
+		tablaParseo.add(new ItemTablaParseo(2,"(","shift",2));
+		tablaParseo.add(new ItemTablaParseo(2,"$","r",2));
+		tablaParseo.add(new ItemTablaParseo(2,")","r",2));
+		tablaParseo.add(new ItemTablaParseo(3,")","shift",4));
+		tablaParseo.add(new ItemTablaParseo(4,"P","goto",5));
+		tablaParseo.add(new ItemTablaParseo(4,"(","shift",2));
+		tablaParseo.add(new ItemTablaParseo(4,"$","r",2));
+		tablaParseo.add(new ItemTablaParseo(4,")","r",2));
+		tablaParseo.add(new ItemTablaParseo(5,"$","r",1));
+		tablaParseo.add(new ItemTablaParseo(5,")","r",1));
 	}
 	public void generarProducciones(){
-		producciones.add(new Produccion("E'","E $", new Item(0)));
-		producciones.add(new Produccion("E","E + T", new Item(0)));
-		producciones.add(new Produccion("E","T", new Item(0)));
-		producciones.add(new Produccion("T","T * F", new Item(0)));
-		producciones.add(new Produccion("T","F", new Item(0)));
-		producciones.add(new Produccion("F","( E )", new Item(0)));
-		producciones.add(new Produccion("F","id", new Item(0)));
+		producciones.add(new Produccion("S","P $", new Item(0)));
+		producciones.add(new Produccion("P","( P ) P", new Item(0)));
+		producciones.add(new Produccion("P","", new Item(0)));
 	}
 	public String determinarOperacion(String letra){
 		if (terminal(letra)){

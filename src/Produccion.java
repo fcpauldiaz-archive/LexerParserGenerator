@@ -94,6 +94,10 @@ public class Produccion<T> implements Serializable{
         if (!Objects.equals(this.item, other.item)) {
             return false;
         }
+        
+        if (!Objects.equals(this.lookahead, other.lookahead)) {
+            return false;
+        }
         return true;
     }
 
@@ -109,7 +113,7 @@ public class Produccion<T> implements Serializable{
     }
     
     public Produccion clonar(){
-        return new Produccion(getCabeza(),getCuerpo(),getItem());
+        return new Produccion(getCabeza(),getCuerpo(),getItem().clonar(),getLookahead());
     }
     
     public boolean isRecursivaIzquierda(){
