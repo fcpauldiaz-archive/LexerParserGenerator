@@ -14,7 +14,7 @@ import java.util.TreeSet;
  *
  * @author Pablo
  */
-public class ParserLRUno {
+public class ParserCanonicalLR {
     
     private final ArrayList<Produccion> producciones;
     private LexerSyntax syntax;
@@ -22,7 +22,7 @@ public class ParserLRUno {
     private Automata LR;
     private HashSet<Produccion> globalActual;
     
-    public ParserLRUno(ArrayList<Produccion> producciones,LexerSyntax syntax) {
+    public ParserCanonicalLR(ArrayList<Produccion> producciones,LexerSyntax syntax) {
         this.producciones = producciones;
         this.syntax = syntax;
     }

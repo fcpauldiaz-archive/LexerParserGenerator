@@ -65,7 +65,7 @@ public class CompilerMain {
         g.generarParser();
         g.serialize();*/
         
-        ParserLRUno LR = new ParserLRUno(lexer.getProducciones(),lexer);
+        ParserCanonicalLR LR = new ParserCanonicalLR(lexer.getProducciones(),lexer);
         LR.construirAutomata();
         
         }
