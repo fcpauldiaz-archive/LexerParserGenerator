@@ -5,7 +5,8 @@
  * Descripción: Tercer proyecto. Generador de ParserMain
 **/
 
-import java.util.Scanner;
+import java.io.File;
+import java.util.HashMap;
 
 public class EjemploParserMain {
 
@@ -14,11 +15,10 @@ public class EjemploParserMain {
  */
 	public static void main(String[] args) {
 		// TODO code application logic here
-		String input;
-		Scanner keyboard = new Scanner(System.in);
-		System.out.println("Ingrese text a parsear");
-		input = keyboard.next();
+ReadFile read = new ReadFile();
+File file = new File("inputParser"+".txt");
+HashMap input = read.leerArchivo(file);
 		EjemploParser objParser = new EjemploParser(input);
-		objParser.procesoParseo(input);
+objParser.revisarArchivo();
 	}
 }

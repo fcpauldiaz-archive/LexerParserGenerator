@@ -220,7 +220,7 @@ public class ParserCanonicalLR {
         if ((int)I.getItem().getPosicion()+1>=I.getCuerpo().split(" ").length)
             beta = "";
         else
-            beta = I.getCuerpo().split(" ")[(int)I.getItem().getPosicion()+1];
+            beta = I.getCuerpo().split(" ")[(int)I.getItem().getPosicion()+1]+" ";
         System.out.println(I.getLookahead());
         TreeSet<String> nuevoLookahead = syntax.first(beta+(String)I.getLookahead());
         String lookaheadString = "";
@@ -241,7 +241,7 @@ public class ParserCanonicalLR {
         globalClosure.add(I);
         if ((int)I.getItem().getPosicion()<parts.length){
             if (!this.terminal(parts[(int)I.getItem().getPosicion()])){//si no es terminal
-                ArrayList<Produccion> innerProd = searchProductionsSpecific(parts[(int)I.getItem().getPosicion()], new ArrayList(globalActual));//busca las producciones
+                ArrayList<Produccion> innerProd = searchProductions(parts[(int)I.getItem().getPosicion()]);//busca las producciones
                 innerProd.remove(I);
                 for (int j = 0;j<innerProd.size();j++){
                     Produccion pnew = innerProd.get(j).clonar();
@@ -630,7 +630,7 @@ public class ParserCanonicalLR {
         return index;
     }
     
-    public void crearMainParser(){
+     public void crearMainParser(){
        String scanner_total = (
             "/**"+"\n"+
             " * Nombre del archivo: "+this.nombreArchivo+"Parser.java"+"\n"+
@@ -639,8 +639,8 @@ public class ParserCanonicalLR {
             " * Descripción: Tercer proyecto. Generador de ParserMain"+"\n"+
             "**/"+"\n"+
             ""+"\n"+
-            ""+"import java.util.Scanner;"+"\n"+
-            "import javax.swing.JOptionPane;"+"\n"+
+            ""+"import java.io.File;"+"\n"+
+            "import java.util.HashMap;"+"\n"+
             ""+"\n"+
             "public class "+this.nombreArchivo+"ParserMain {"+"\n"+
             ""+"\n"
@@ -650,13 +650,12 @@ public class ParserCanonicalLR {
            " */"+"\n"+
            "\t"+"public static void main(String[] args) {"+"\n"+
                "\t"+"\t"+ "// TODO code application logic here"+"\n"+
-               "\t"+"\t"+"String input;"+"\n"+
-               "\t"+"\t"+"Scanner keyboard = new Scanner(System.in);"+"\n"+
-               "\t"+"\t"+"System.out.println(\"Ingrese text a parsear\");"+"\n"+
-               "\t"+"\t"+"input = JOptionPane.showInputDialog(\"Ingrese texto a parsear: \");"+"\n"+
+                "ReadFile read = new ReadFile();"+"\n"+
+		"File file = new File(\"inputParser\"+\".txt\");"+"\n"+
+		"HashMap input = read.leerArchivo(file);"+"\n"+
+		
                "\t"+"\t" + this.nombreArchivo+"Parser"+" objParser " + "= new " + this.nombreArchivo+"Parser(input);"+"\n"+
-                 "\t"+"\t"+ "objParser.procesoParseo(input);"+"\n"+
-             
+                "objParser.revisarArchivo();"+"\n"+
                "\t"+"}"+"\n"+
                "}"
                ;
@@ -677,7 +676,7 @@ public class ParserCanonicalLR {
             "**/"+"\n"+
             ""+"\n"+
            
-            "import java.util.HashSet;"+"\n"+
+               "import java.util.HashSet;"+"\n"+
             "import java.util.ArrayList;"+"\n"+
             "import java.util.TreeMap;"+"\n"+
             "import java.util.Stack;"+"\n"+
@@ -686,6 +685,8 @@ public class ParserCanonicalLR {
             "import java.io.IOException;"+"\n"+
             "import java.io.ObjectInputStream;"+"\n"+
             "import java.io.ObjectOutputStream;"+"\n"+
+            "import java.util.Map;"+"\n"+
+            "import java.util.HashMap;"+"\n"+
           
            
           
@@ -694,14 +695,14 @@ public class ParserCanonicalLR {
             ""+"\n"+
             "\t"+"private final ArrayList<Produccion> producciones = new ArrayList();"+"\n"+
             "\t"+"private final ArrayList<ItemTablaParseo> tablaParseo = new ArrayList();"+"\n"+
-            "\t"+"private String input;"+"\n"+   
+            "\t"+"private HashMap<Integer,String> input;"+"\n"+   
             "\t"+"private Automata LR;"+"\n");
            
             scanner_total +=
        
             "\t"+"private Errors errores = new Errors();"+"\n"+"\n"+
                 
-            "\t"+"public " + this.nombreArchivo+"Parser(String input){"+"\n"+
+            "\t"+"public " + this.nombreArchivo+"Parser(HashMap input){"+"\n"+
             "\t"+"\t"+"this.input=input;"+"\n"+
                             
           
@@ -769,6 +770,8 @@ public class ParserCanonicalLR {
     }
     public String generarMetodosParseo(){
         String res = "";
+      
+        
           
     res +=
         "\t"+"public String determinarOperacion(String letra){"+"\n"+
@@ -779,18 +782,17 @@ public class ParserCanonicalLR {
            "\t"+"\t"+"\t"+ "return \"accept\";"+"\n"+
         "\t"+"\t"+"return \"goto\";"+"\n"+
         "\t"+"}"+"\n"+"\n";
-   
-    res += "\t"+"public void revisarArchivo(){"+"\n"+
+       res += "\t"+"public void revisarArchivo(){"+"\n"+
             	"\t"+"\t"+"for (Map.Entry<Integer, String> entry : input.entrySet()) {"+"\n"+
 			"\t"+"\t"+"\t"+"Integer key = entry.getKey();"+"\n"+
 			"\t"+"\t"+"\t"+"String value = entry.getValue();"+"\n"+
-			"\t"+"\t"+"\t"+"procesoParseo(value);"+"\n"+
+			"\t"+"\t"+"\t"+"procesoParseo(value,key);"+"\n"+
 		"\t"+"\t"+"}"+"\n"+
-           "\t"+ "}";
-    
+           "\t"+ "}"+"\n";   
     res += 
-         "\t"+"public void procesoParseo(String input){"+"\n"+
+         "\t"+"public void procesoParseo(String input, int lineaActual){"+"\n"+
           "\t"+ "\t"+"imprimirTabla();"+"\n"+
+           "\t"+"\t"+"boolean aceptado = false;"+"\n"+
          "\t"+ "\t"+"input += \" $\";"+"\n"+
          "\t"+ "\t"+"Stack estados = new Stack();"+"\n"+
          "\t"+ "\t"+"estados.push(0);"+"\n"+
@@ -861,8 +863,11 @@ public class ParserCanonicalLR {
                "\t"+"\t"+"\t"+"\t"+"Goto = false;"+"\n"+
            "\t"+ "\t"+"\t"+"\t"+"}"+"\n"+
            
-           "\t"+"\t"+ "\t"+"\t"+"if (encontrado.getOperacion().equals(\"accept\"))"+"\n"+
+           "\t"+"\t"+ "\t"+"\t"+"if (encontrado.getOperacion().equals(\"accept\")){"+"\n"+
+            "\t"+ "\t"+ "\t"+"\t"+"\t"+"System.out.println(\"Entrada aceptada en la linea: \"+lineaActual);"+"\n"+
               "\t"+ "\t"+ "\t"+"\t"+"\t"+"break;"+"\n"+
+              "\t"+ "\t"+ "\t"+"\t"+"}"+"\n"+
+            
            
             
         "\t"+"\t"+"\t"+"}"+"\n"+
@@ -871,9 +876,10 @@ public class ParserCanonicalLR {
             "\t"+"\t"+"\t"+"for (int b = 0;b+i<parts.length;b++){"+"\n"+
                 "\t"+"\t"+"\t"+"\t"+"consumido += \" \"+ parts[b+i];"+"\n"+
             "\t"+"\t"+"\t"+"}"+"\n"+
-            "\t"+"\t"+"\t"+"System.out.println(\"La entrada no pudo parsearse.\");"+"\n"+
+            "\t"+"\t"+"\t"+"System.out.println(\"La entrada: \"+ input +\"no pudo parsearse en la linea: \"+lineaActual);"+"\n"+
             "\t"+"\t"+"\t"+"System.out.println(\"Se parseo hasta: \" + actualString);"+"\n"+
-            "\t"+"\t"+"\t"+"System.out.println(\"Faltó parsear: \" + input.substring(i));"+"\n"+
+            "\t"+"\t"+"\t"+"System.out.println(\"Faltó parsear: \" + consumido);"+"\n"+
+            
        "\t"+"\t"+ "}"+"\n"+
     "\t"+"}"+"\n";
         

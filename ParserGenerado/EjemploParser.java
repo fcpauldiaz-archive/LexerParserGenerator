@@ -14,16 +14,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Map;
+import java.util.HashMap;
 
 public class EjemploParser {
 
 	private final ArrayList<Produccion> producciones = new ArrayList();
 	private final ArrayList<ItemTablaParseo> tablaParseo = new ArrayList();
-	private String input;
+	private HashMap<Integer,String> input;
 	private Automata SLR;
 	private Errors errores = new Errors();
 
-	public EjemploParser(String input){
+	public EjemploParser(HashMap input){
 		this.input=input;
 		try
 		{
@@ -46,23 +48,60 @@ public class EjemploParser {
 		generarProducciones();
 	}
 	public void generarItems(){
-		tablaParseo.add(new ItemTablaParseo(0,"a","shift",1));
-		tablaParseo.add(new ItemTablaParseo(1,"a","shift",2));
-		tablaParseo.add(new ItemTablaParseo(1,"S","goto",3));
-		tablaParseo.add(new ItemTablaParseo(2,"b","r",1));
-		tablaParseo.add(new ItemTablaParseo(2,"$","r",1));
-		tablaParseo.add(new ItemTablaParseo(3,"b","shift",4));
-		tablaParseo.add(new ItemTablaParseo(4,"a","shift",5));
-		tablaParseo.add(new ItemTablaParseo(4,"S","goto",6));
-		tablaParseo.add(new ItemTablaParseo(5,"a","shift",5));
-		tablaParseo.add(new ItemTablaParseo(5,"S","goto",3));
-		tablaParseo.add(new ItemTablaParseo(5,"b","r",1));
-		tablaParseo.add(new ItemTablaParseo(5,"$","r",1));
-		tablaParseo.add(new ItemTablaParseo(6,"$","accept",1));
+		tablaParseo.add(new ItemTablaParseo(0,"T","goto",1));
+		tablaParseo.add(new ItemTablaParseo(0,"E","goto",2));
+		tablaParseo.add(new ItemTablaParseo(0,"F","goto",3));
+		tablaParseo.add(new ItemTablaParseo(0,"(","shift",4));
+		tablaParseo.add(new ItemTablaParseo(0,"id","shift",5));
+		tablaParseo.add(new ItemTablaParseo(1,"*","shift",10));
+		tablaParseo.add(new ItemTablaParseo(1,"$","r",2));
+		tablaParseo.add(new ItemTablaParseo(1,")","r",2));
+		tablaParseo.add(new ItemTablaParseo(1,"+","r",2));
+		tablaParseo.add(new ItemTablaParseo(2,"+","shift",8));
+		tablaParseo.add(new ItemTablaParseo(2,"$","accept",1));
+		tablaParseo.add(new ItemTablaParseo(3,"$","r",4));
+		tablaParseo.add(new ItemTablaParseo(3,")","r",4));
+		tablaParseo.add(new ItemTablaParseo(3,"*","r",4));
+		tablaParseo.add(new ItemTablaParseo(3,"+","r",4));
+		tablaParseo.add(new ItemTablaParseo(4,"T","goto",1));
+		tablaParseo.add(new ItemTablaParseo(4,"E","goto",6));
+		tablaParseo.add(new ItemTablaParseo(4,"F","goto",3));
+		tablaParseo.add(new ItemTablaParseo(4,"(","shift",4));
+		tablaParseo.add(new ItemTablaParseo(4,"id","shift",5));
+		tablaParseo.add(new ItemTablaParseo(5,"$","r",6));
+		tablaParseo.add(new ItemTablaParseo(5,")","r",6));
+		tablaParseo.add(new ItemTablaParseo(5,"*","r",6));
+		tablaParseo.add(new ItemTablaParseo(5,"+","r",6));
+		tablaParseo.add(new ItemTablaParseo(6,")","shift",7));
+		tablaParseo.add(new ItemTablaParseo(6,"+","shift",8));
+		tablaParseo.add(new ItemTablaParseo(7,"$","r",5));
+		tablaParseo.add(new ItemTablaParseo(7,")","r",5));
+		tablaParseo.add(new ItemTablaParseo(7,"*","r",5));
+		tablaParseo.add(new ItemTablaParseo(7,"+","r",5));
+		tablaParseo.add(new ItemTablaParseo(8,"T","goto",9));
+		tablaParseo.add(new ItemTablaParseo(8,"F","goto",3));
+		tablaParseo.add(new ItemTablaParseo(8,"(","shift",4));
+		tablaParseo.add(new ItemTablaParseo(8,"id","shift",5));
+		tablaParseo.add(new ItemTablaParseo(9,"*","shift",10));
+		tablaParseo.add(new ItemTablaParseo(9,"$","r",1));
+		tablaParseo.add(new ItemTablaParseo(9,")","r",1));
+		tablaParseo.add(new ItemTablaParseo(9,"+","r",1));
+		tablaParseo.add(new ItemTablaParseo(10,"F","goto",11));
+		tablaParseo.add(new ItemTablaParseo(10,"(","shift",4));
+		tablaParseo.add(new ItemTablaParseo(10,"id","shift",5));
+		tablaParseo.add(new ItemTablaParseo(11,"$","r",3));
+		tablaParseo.add(new ItemTablaParseo(11,")","r",3));
+		tablaParseo.add(new ItemTablaParseo(11,"*","r",3));
+		tablaParseo.add(new ItemTablaParseo(11,"+","r",3));
 	}
 	public void generarProducciones(){
-		producciones.add(new Produccion("S","a S b S $", new Item(0)));
-		producciones.add(new Produccion("S","a", new Item(0)));
+		producciones.add(new Produccion("E'","E $", new Item(0)));
+		producciones.add(new Produccion("E","E + T", new Item(0)));
+		producciones.add(new Produccion("E","T", new Item(0)));
+		producciones.add(new Produccion("T","T * F", new Item(0)));
+		producciones.add(new Produccion("T","F", new Item(0)));
+		producciones.add(new Produccion("F","( E )", new Item(0)));
+		producciones.add(new Produccion("F","id", new Item(0)));
 	}
 	public String determinarOperacion(String letra){
 		if (terminal(letra)){
@@ -73,38 +112,53 @@ public class EjemploParser {
 		return "goto";
 	}
 
-	public void procesoParseo(String input){
+	public void revisarArchivo(){
+		for (Map.Entry<Integer, String> entry : input.entrySet()) {
+			Integer key = entry.getKey();
+			String value = entry.getValue();
+			procesoParseo(value,key);
+		}
+	}
+	public void procesoParseo(String input, int lineaActual){
 		imprimirTabla();
-		input += "$";
+		boolean aceptado = false;
+		input += " $";
 		Stack estados = new Stack();
 		estados.push(0);
 		int i = 0;
 		boolean Goto = false;
+		String[] parts = input.split(" ");
+		ItemTablaParseo encontrado = null;
+		String consumido = "";
+		int cantParts = parts.length;
+		String actualString ="";
 		try{
 			while(true){
-				Character ch = input.charAt(i);
-				while (!SLR.getAlfabeto().contains(ch)){//si i llega al input.length() significa que no pertenece al alfabeto
-					i++;
-					if (i != input.length())
-						ch = input.charAt(i);
-					else
-						break;
-				}
+				String ch = parts[i];
 				int actual = (int)estados.peek();
-				ItemTablaParseo encontrado = buscarItem(ch.toString(),actual);
+				if (!Goto)
+					encontrado = buscarItem(ch,actual);
 				String op = (String)encontrado.getOperacion();
 				if (op.equals("r"))
 					op = "reduce";
 				if (Goto)
 					op ="goto";
-				System.out.format("%32s%10s%10s", estados, input.substring(i),op);
+				System.out.format("%32s%10s%10s", estados, consumido,op+encontrado.getNextEstado());
 				System.out.println("");
 				if (encontrado.getOperacion().equals("shift")){
 					i++;
+					actualString += parts[i];
+					consumido = "";
+						for (int b = 0;b+i<parts.length;b++){
+							consumido += " "+ parts[b+i];
+					}
 					estados.push(encontrado.getNextEstado());
 				}
 				else if (encontrado.getOperacion().equals("r")&&!Goto){
-				int cantidad = producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll("\\s", "").length();
+				int cantidad = producciones.get((int)encontrado.getNextEstado()).getCuerpo().split(" ").length;
+				if ( producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll("\\s", "").isEmpty()){
+					cantidad--;
+				}
 				while(cantidad>0){
 					estados.pop();
 					cantidad--;
@@ -127,13 +181,19 @@ public class EjemploParser {
 				estados.push(estadoEncontrado);
 				Goto = false;
 				}
-				if (encontrado.getOperacion().equals("accept"))
+				if (encontrado.getOperacion().equals("accept")){
+					System.out.println("Entrada aceptada en la linea: "+lineaActual);
 					break;
+				}
 			}
 		}catch(Exception e){
-			System.out.println("La entrada no pudo parsearse.");
-			System.out.println("Se parseo hasta: " + input.substring(0,i));
-			System.out.println("Faltó parsear: " + input.substring(i));
+						consumido = "";
+			for (int b = 0;b+i<parts.length;b++){
+				consumido += " "+ parts[b+i];
+			}
+			System.out.println("La entrada: "+ input +"no pudo parsearse en la linea: "+lineaActual);
+			System.out.println("Se parseo hasta: " + actualString);
+			System.out.println("Faltó parsear: " + consumido);
 		}
 	}
 	public ItemTablaParseo buscarItem(String simbolo, int estado){

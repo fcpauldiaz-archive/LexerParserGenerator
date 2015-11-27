@@ -41,8 +41,11 @@ public class Ejemplo {
 		temp_0.setTipo("number");
 		automatas.add(temp_0);
 
-		AFNConstruct ThomsonAlgorithim_1 = new AFNConstruct();
-		Automata temp_1 =ThomsonAlgorithim_0.afnSimple("  ");
+		RegexConverter convert_1= new RegexConverter();
+		String regex_1 = convert_1.infixToPostfix(" tab ");
+		AFNConstruct ThomsonAlgorithim_1 = new AFNConstruct(regex_1);
+		ThomsonAlgorithim_1.construct();
+		Automata temp_1 = ThomsonAlgorithim_1.getAfn();
 		temp_1.setTipo("WHITESPACE");
 		automatas.add(temp_1);
 

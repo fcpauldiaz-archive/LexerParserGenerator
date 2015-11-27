@@ -1,1 +1,4 @@
-id assign_op number
+a c d
+b c d
+a c e
+b c e

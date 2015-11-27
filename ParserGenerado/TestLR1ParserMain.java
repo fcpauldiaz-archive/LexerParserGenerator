@@ -5,8 +5,8 @@
  * Descripción: Tercer proyecto. Generador de ParserMain
 **/
 
-import java.util.Scanner;
-import javax.swing.JOptionPane;
+import java.io.File;
+import java.util.HashMap;
 
 public class TestLR1ParserMain {
 
@@ -15,11 +15,10 @@ public class TestLR1ParserMain {
  */
 	public static void main(String[] args) {
 		// TODO code application logic here
-		String input;
-		Scanner keyboard = new Scanner(System.in);
-		System.out.println("Ingrese text a parsear");
-		input = JOptionPane.showInputDialog("Ingrese texto a parsear: ");
+ReadFile read = new ReadFile();
+File file = new File("inputParser"+".txt");
+HashMap input = read.leerArchivo(file);
 		TestLR1Parser objParser = new TestLR1Parser(input);
-		objParser.procesoParseo(input);
+objParser.revisarArchivo();
 	}
 }

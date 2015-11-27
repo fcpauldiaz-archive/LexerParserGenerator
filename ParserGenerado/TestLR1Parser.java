@@ -14,16 +14,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Map;
+import java.util.HashMap;
 
 public class TestLR1Parser {
 
 	private final ArrayList<Produccion> producciones = new ArrayList();
 	private final ArrayList<ItemTablaParseo> tablaParseo = new ArrayList();
-	private String input;
+	private HashMap<Integer,String> input;
 	private Automata LR;
 	private Errors errores = new Errors();
 
-	public TestLR1Parser(String input){
+	public TestLR1Parser(HashMap input){
 		this.input=input;
 		try
 		{
@@ -49,19 +51,25 @@ public class TestLR1Parser {
 		tablaParseo.add(new ItemTablaParseo(0,"a","shift",1));
 		tablaParseo.add(new ItemTablaParseo(0,"b","shift",2));
 		tablaParseo.add(new ItemTablaParseo(0,"S","goto",3));
-		tablaParseo.add(new ItemTablaParseo(1,"H","goto",8));
-		tablaParseo.add(new ItemTablaParseo(1,"K","goto",9));
-		tablaParseo.add(new ItemTablaParseo(2,"H","goto",4));
-		tablaParseo.add(new ItemTablaParseo(2,"K","goto",5));
+		tablaParseo.add(new ItemTablaParseo(1,"c","shift",9));
+		tablaParseo.add(new ItemTablaParseo(1,"H","goto",10));
+		tablaParseo.add(new ItemTablaParseo(1,"K","goto",11));
+		tablaParseo.add(new ItemTablaParseo(2,"c","shift",4));
+		tablaParseo.add(new ItemTablaParseo(2,"H","goto",5));
+		tablaParseo.add(new ItemTablaParseo(2,"K","goto",6));
 		tablaParseo.add(new ItemTablaParseo(3,"$","accept",0));
-		tablaParseo.add(new ItemTablaParseo(4,"e","shift",7));
-		tablaParseo.add(new ItemTablaParseo(5,"d","shift",6));
-		tablaParseo.add(new ItemTablaParseo(6,"$","r",2));
-		tablaParseo.add(new ItemTablaParseo(7,"$","r",4));
-		tablaParseo.add(new ItemTablaParseo(8,"d","shift",11));
-		tablaParseo.add(new ItemTablaParseo(9,"e","shift",10));
-		tablaParseo.add(new ItemTablaParseo(10,"$","r",3));
-		tablaParseo.add(new ItemTablaParseo(11,"$","r",1));
+		tablaParseo.add(new ItemTablaParseo(4,"e","r",5));
+		tablaParseo.add(new ItemTablaParseo(4,"d","r",6));
+		tablaParseo.add(new ItemTablaParseo(5,"e","shift",8));
+		tablaParseo.add(new ItemTablaParseo(6,"d","shift",7));
+		tablaParseo.add(new ItemTablaParseo(7,"$","r",2));
+		tablaParseo.add(new ItemTablaParseo(8,"$","r",4));
+		tablaParseo.add(new ItemTablaParseo(9,"d","r",5));
+		tablaParseo.add(new ItemTablaParseo(9,"e","r",6));
+		tablaParseo.add(new ItemTablaParseo(10,"d","shift",13));
+		tablaParseo.add(new ItemTablaParseo(11,"e","shift",12));
+		tablaParseo.add(new ItemTablaParseo(12,"$","r",3));
+		tablaParseo.add(new ItemTablaParseo(13,"$","r",1));
 	}
 	public void generarProducciones(){
 		producciones.add(new Produccion("Sp","S", new Item(0)));
@@ -81,8 +89,16 @@ public class TestLR1Parser {
 		return "goto";
 	}
 
-	public void procesoParseo(String input){
+	public void revisarArchivo(){
+		for (Map.Entry<Integer, String> entry : input.entrySet()) {
+			Integer key = entry.getKey();
+			String value = entry.getValue();
+			procesoParseo(value,key);
+		}
+	}
+	public void procesoParseo(String input, int lineaActual){
 		imprimirTabla();
+		boolean aceptado = false;
 		input += " $";
 		Stack estados = new Stack();
 		estados.push(0);
@@ -142,17 +158,19 @@ public class TestLR1Parser {
 				estados.push(estadoEncontrado);
 				Goto = false;
 				}
-				if (encontrado.getOperacion().equals("accept"))
+				if (encontrado.getOperacion().equals("accept")){
+					System.out.println("Entrada aceptada en la linea: "+lineaActual);
 					break;
+				}
 			}
 		}catch(Exception e){
 						consumido = "";
 			for (int b = 0;b+i<parts.length;b++){
 				consumido += " "+ parts[b+i];
 			}
-			System.out.println("La entrada no pudo parsearse.");
+			System.out.println("La entrada: "+ input +"no pudo parsearse en la linea: "+lineaActual);
 			System.out.println("Se parseo hasta: " + actualString);
-			System.out.println("Faltó parsear: " + input.substring(i));
+			System.out.println("Faltó parsear: " + consumido);
 		}
 	}
 	public ItemTablaParseo buscarItem(String simbolo, int estado){

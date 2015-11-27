@@ -847,7 +847,7 @@ public class ParserSLRGenerator {
             "\t"+"\t"+"\t"+"}"+"\n"+
             "\t"+"\t"+"\t"+"System.out.println(\"La entrada: \"+ input +\"no pudo parsearse en la linea: \"+lineaActual);"+"\n"+
             "\t"+"\t"+"\t"+"System.out.println(\"Se parseo hasta: \" + actualString);"+"\n"+
-            "\t"+"\t"+"\t"+"System.out.println(\"Faltó parsear: \" + input.substring(i));"+"\n"+
+            "\t"+"\t"+"\t"+"System.out.println(\"Faltó parsear: \" + consumido);"+"\n"+
             
        "\t"+"\t"+ "}"+"\n"+
     "\t"+"}"+"\n";

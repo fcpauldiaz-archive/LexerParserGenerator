@@ -17,7 +17,7 @@ public static void main(String[] args) {
 	ReadFile read = new ReadFile();
 	File file = new File("input"+".txt");
 	HashMap input = read.leerArchivo(file);
-	MiniTiny resGenerator = new MiniTiny(input);
+	TestLR1 resGenerator = new TestLR1(input);
 	resGenerator.automatas();
 	resGenerator.revisar();
 	}

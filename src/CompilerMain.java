@@ -31,8 +31,14 @@ public class CompilerMain {
         // TODO code application logic here
          // TODO code application logic here
         ReadFile read = new ReadFile();
-        File file = new File("MiniTiny (SLR)"+".txt");
-        
+        //aqui se ingresa el archivo de la gramática
+        //File file = new File("Test1"+".txt");
+        //File file = new File("Test2"+".txt");
+        //File file = new File("Test3"+".txt");
+        //File file = new File("Test4"+".txt");
+        //File file = new File("MiniTiny (SLR)"+".txt");
+        // File file = new File("cocol"+".txt");
+        File file = new File("TestLR1"+".txt");
           HashMap cocol = read.leerArchivo(file);
         
        
@@ -70,14 +76,14 @@ public class CompilerMain {
             if (teclado.equals("1")){
                 SLR.constructLR();
                 SLR.crearTablaParseo();
-               // SLR.procesoParseo("id assign_op number");
+               // SLR.procesoParseo("id +");
                 SLR.generarParser();
                 SLR.serialize();
             }
             else if (teclado.equals("2")){
                 LR.construirAutomata();
                 LR.crearTablaParseo();
-                LR.procesoParseo("a c d");
+                LR.procesoParseo("a c e");
                 LR.generarParser();
                 LR.serialize();
             }
