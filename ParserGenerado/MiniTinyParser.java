@@ -14,16 +14,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Map;
+import java.util.HashMap;
 
 public class MiniTinyParser {
 
 	private final ArrayList<Produccion> producciones = new ArrayList();
 	private final ArrayList<ItemTablaParseo> tablaParseo = new ArrayList();
-	private String input;
+	private HashMap<Integer,String> input;
 	private Automata SLR;
 	private Errors errores = new Errors();
 
-	public MiniTinyParser(String input){
+	public MiniTinyParser(HashMap input){
 		this.input=input;
 		try
 		{
@@ -47,100 +49,92 @@ public class MiniTinyParser {
 	}
 	public void generarItems(){
 		tablaParseo.add(new ItemTablaParseo(0,"stmtSeq","goto",1));
-		tablaParseo.add(new ItemTablaParseo(0,"id","shift",2));
-		tablaParseo.add(new ItemTablaParseo(0,"stmt","goto",3));
-		tablaParseo.add(new ItemTablaParseo(0,"assign_stmt","goto",4));
-		tablaParseo.add(new ItemTablaParseo(1,"pc","shift",27));
-		tablaParseo.add(new ItemTablaParseo(1,"$","accept",1));
-		tablaParseo.add(new ItemTablaParseo(2,"assign_op","shift",5));
-		tablaParseo.add(new ItemTablaParseo(3,"pc","r",2));
-		tablaParseo.add(new ItemTablaParseo(3,"$","r",2));
+		tablaParseo.add(new ItemTablaParseo(0,"program","goto",2));
+		tablaParseo.add(new ItemTablaParseo(0,"id","shift",3));
+		tablaParseo.add(new ItemTablaParseo(0,"stmt","goto",4));
+		tablaParseo.add(new ItemTablaParseo(0,"assign_stmt","goto",5));
+		tablaParseo.add(new ItemTablaParseo(1,"pc","shift",28));
+		tablaParseo.add(new ItemTablaParseo(1,"$","r",1));
+		tablaParseo.add(new ItemTablaParseo(2,"$","accept",1));
+		tablaParseo.add(new ItemTablaParseo(3,"assign_op","shift",6));
 		tablaParseo.add(new ItemTablaParseo(4,"pc","r",3));
 		tablaParseo.add(new ItemTablaParseo(4,"$","r",3));
-		tablaParseo.add(new ItemTablaParseo(4,"Seq","r",3));
-		tablaParseo.add(new ItemTablaParseo(5,"op","shift",6));
-		tablaParseo.add(new ItemTablaParseo(5,"simpleExp","goto",7));
-		tablaParseo.add(new ItemTablaParseo(5,"number","shift",8));
-		tablaParseo.add(new ItemTablaParseo(5,"term","goto",9));
-		tablaParseo.add(new ItemTablaParseo(5,"id","shift",10));
-		tablaParseo.add(new ItemTablaParseo(5,"exp","goto",11));
-		tablaParseo.add(new ItemTablaParseo(5,"factor","goto",12));
-		tablaParseo.add(new ItemTablaParseo(6,"op","shift",6));
-		tablaParseo.add(new ItemTablaParseo(6,"simpleExp","goto",7));
-		tablaParseo.add(new ItemTablaParseo(6,"number","shift",8));
-		tablaParseo.add(new ItemTablaParseo(6,"term","goto",9));
-		tablaParseo.add(new ItemTablaParseo(6,"id","shift",10));
-		tablaParseo.add(new ItemTablaParseo(6,"exp","goto",25));
-		tablaParseo.add(new ItemTablaParseo(6,"factor","goto",12));
-		tablaParseo.add(new ItemTablaParseo(7,"res","shift",17));
-		tablaParseo.add(new ItemTablaParseo(7,"lt","shift",18));
-		tablaParseo.add(new ItemTablaParseo(7,"sum","shift",19));
-		tablaParseo.add(new ItemTablaParseo(7,"eq","shift",20));
-		tablaParseo.add(new ItemTablaParseo(7,"pc","r",7));
-		tablaParseo.add(new ItemTablaParseo(7,"$","r",7));
-		tablaParseo.add(new ItemTablaParseo(7,"cp","r",7));
-		tablaParseo.add(new ItemTablaParseo(7,"Seq","r",7));
-		tablaParseo.add(new ItemTablaParseo(8,"div","r",15));
-		tablaParseo.add(new ItemTablaParseo(8,"res","r",15));
-		tablaParseo.add(new ItemTablaParseo(8,"pc","r",15));
-		tablaParseo.add(new ItemTablaParseo(8,"$","r",15));
-		tablaParseo.add(new ItemTablaParseo(8,"mul","r",15));
-		tablaParseo.add(new ItemTablaParseo(8,"lt","r",15));
-		tablaParseo.add(new ItemTablaParseo(8,"sum","r",15));
-		tablaParseo.add(new ItemTablaParseo(8,"eq","r",15));
-		tablaParseo.add(new ItemTablaParseo(8,"cp","r",15));
-		tablaParseo.add(new ItemTablaParseo(8,"Seq","r",15));
-		tablaParseo.add(new ItemTablaParseo(9,"mul","shift",14));
-		tablaParseo.add(new ItemTablaParseo(9,"div","shift",13));
-		tablaParseo.add(new ItemTablaParseo(9,"res","r",10));
-		tablaParseo.add(new ItemTablaParseo(9,"pc","r",10));
-		tablaParseo.add(new ItemTablaParseo(9,"$","r",10));
-		tablaParseo.add(new ItemTablaParseo(9,"lt","r",10));
-		tablaParseo.add(new ItemTablaParseo(9,"sum","r",10));
-		tablaParseo.add(new ItemTablaParseo(9,"eq","r",10));
-		tablaParseo.add(new ItemTablaParseo(9,"cp","r",10));
-		tablaParseo.add(new ItemTablaParseo(9,"Seq","r",10));
-		tablaParseo.add(new ItemTablaParseo(10,"div","r",16));
-		tablaParseo.add(new ItemTablaParseo(10,"res","r",16));
-		tablaParseo.add(new ItemTablaParseo(10,"pc","r",16));
-		tablaParseo.add(new ItemTablaParseo(10,"$","r",16));
-		tablaParseo.add(new ItemTablaParseo(10,"mul","r",16));
-		tablaParseo.add(new ItemTablaParseo(10,"lt","r",16));
-		tablaParseo.add(new ItemTablaParseo(10,"sum","r",16));
-		tablaParseo.add(new ItemTablaParseo(10,"eq","r",16));
-		tablaParseo.add(new ItemTablaParseo(10,"cp","r",16));
-		tablaParseo.add(new ItemTablaParseo(10,"Seq","r",16));
-		tablaParseo.add(new ItemTablaParseo(11,"pc","r",4));
-		tablaParseo.add(new ItemTablaParseo(11,"$","r",4));
-		tablaParseo.add(new ItemTablaParseo(11,"Seq","r",4));
-		tablaParseo.add(new ItemTablaParseo(12,"div","r",13));
-		tablaParseo.add(new ItemTablaParseo(12,"res","r",13));
-		tablaParseo.add(new ItemTablaParseo(12,"pc","r",13));
-		tablaParseo.add(new ItemTablaParseo(12,"$","r",13));
-		tablaParseo.add(new ItemTablaParseo(12,"mul","r",13));
-		tablaParseo.add(new ItemTablaParseo(12,"lt","r",13));
-		tablaParseo.add(new ItemTablaParseo(12,"sum","r",13));
-		tablaParseo.add(new ItemTablaParseo(12,"eq","r",13));
-		tablaParseo.add(new ItemTablaParseo(12,"cp","r",13));
-		tablaParseo.add(new ItemTablaParseo(12,"Seq","r",13));
-		tablaParseo.add(new ItemTablaParseo(13,"op","shift",6));
-		tablaParseo.add(new ItemTablaParseo(13,"number","shift",8));
-		tablaParseo.add(new ItemTablaParseo(13,"id","shift",10));
-		tablaParseo.add(new ItemTablaParseo(13,"factor","goto",16));
-		tablaParseo.add(new ItemTablaParseo(14,"op","shift",6));
-		tablaParseo.add(new ItemTablaParseo(14,"number","shift",8));
-		tablaParseo.add(new ItemTablaParseo(14,"id","shift",10));
-		tablaParseo.add(new ItemTablaParseo(14,"factor","goto",15));
-		tablaParseo.add(new ItemTablaParseo(15,"div","r",11));
-		tablaParseo.add(new ItemTablaParseo(15,"res","r",11));
-		tablaParseo.add(new ItemTablaParseo(15,"pc","r",11));
-		tablaParseo.add(new ItemTablaParseo(15,"$","r",11));
-		tablaParseo.add(new ItemTablaParseo(15,"mul","r",11));
-		tablaParseo.add(new ItemTablaParseo(15,"lt","r",11));
-		tablaParseo.add(new ItemTablaParseo(15,"sum","r",11));
-		tablaParseo.add(new ItemTablaParseo(15,"eq","r",11));
-		tablaParseo.add(new ItemTablaParseo(15,"cp","r",11));
-		tablaParseo.add(new ItemTablaParseo(15,"Seq","r",11));
+		tablaParseo.add(new ItemTablaParseo(5,"pc","r",4));
+		tablaParseo.add(new ItemTablaParseo(5,"$","r",4));
+		tablaParseo.add(new ItemTablaParseo(5,"Seq","r",4));
+		tablaParseo.add(new ItemTablaParseo(6,"op","shift",7));
+		tablaParseo.add(new ItemTablaParseo(6,"simpleExp","goto",8));
+		tablaParseo.add(new ItemTablaParseo(6,"number","shift",9));
+		tablaParseo.add(new ItemTablaParseo(6,"term","goto",10));
+		tablaParseo.add(new ItemTablaParseo(6,"id","shift",11));
+		tablaParseo.add(new ItemTablaParseo(6,"exp","goto",12));
+		tablaParseo.add(new ItemTablaParseo(6,"factor","goto",13));
+		tablaParseo.add(new ItemTablaParseo(7,"op","shift",7));
+		tablaParseo.add(new ItemTablaParseo(7,"simpleExp","goto",8));
+		tablaParseo.add(new ItemTablaParseo(7,"number","shift",9));
+		tablaParseo.add(new ItemTablaParseo(7,"term","goto",10));
+		tablaParseo.add(new ItemTablaParseo(7,"id","shift",11));
+		tablaParseo.add(new ItemTablaParseo(7,"exp","goto",26));
+		tablaParseo.add(new ItemTablaParseo(7,"factor","goto",13));
+		tablaParseo.add(new ItemTablaParseo(8,"res","shift",18));
+		tablaParseo.add(new ItemTablaParseo(8,"lt","shift",19));
+		tablaParseo.add(new ItemTablaParseo(8,"sum","shift",20));
+		tablaParseo.add(new ItemTablaParseo(8,"eq","shift",21));
+		tablaParseo.add(new ItemTablaParseo(8,"pc","r",8));
+		tablaParseo.add(new ItemTablaParseo(8,"$","r",8));
+		tablaParseo.add(new ItemTablaParseo(8,"cp","r",8));
+		tablaParseo.add(new ItemTablaParseo(8,"Seq","r",8));
+		tablaParseo.add(new ItemTablaParseo(9,"div","r",16));
+		tablaParseo.add(new ItemTablaParseo(9,"res","r",16));
+		tablaParseo.add(new ItemTablaParseo(9,"pc","r",16));
+		tablaParseo.add(new ItemTablaParseo(9,"$","r",16));
+		tablaParseo.add(new ItemTablaParseo(9,"mul","r",16));
+		tablaParseo.add(new ItemTablaParseo(9,"lt","r",16));
+		tablaParseo.add(new ItemTablaParseo(9,"sum","r",16));
+		tablaParseo.add(new ItemTablaParseo(9,"eq","r",16));
+		tablaParseo.add(new ItemTablaParseo(9,"cp","r",16));
+		tablaParseo.add(new ItemTablaParseo(9,"Seq","r",16));
+		tablaParseo.add(new ItemTablaParseo(10,"mul","shift",15));
+		tablaParseo.add(new ItemTablaParseo(10,"div","shift",14));
+		tablaParseo.add(new ItemTablaParseo(10,"res","r",11));
+		tablaParseo.add(new ItemTablaParseo(10,"pc","r",11));
+		tablaParseo.add(new ItemTablaParseo(10,"$","r",11));
+		tablaParseo.add(new ItemTablaParseo(10,"lt","r",11));
+		tablaParseo.add(new ItemTablaParseo(10,"sum","r",11));
+		tablaParseo.add(new ItemTablaParseo(10,"eq","r",11));
+		tablaParseo.add(new ItemTablaParseo(10,"cp","r",11));
+		tablaParseo.add(new ItemTablaParseo(10,"Seq","r",11));
+		tablaParseo.add(new ItemTablaParseo(11,"div","r",17));
+		tablaParseo.add(new ItemTablaParseo(11,"res","r",17));
+		tablaParseo.add(new ItemTablaParseo(11,"pc","r",17));
+		tablaParseo.add(new ItemTablaParseo(11,"$","r",17));
+		tablaParseo.add(new ItemTablaParseo(11,"mul","r",17));
+		tablaParseo.add(new ItemTablaParseo(11,"lt","r",17));
+		tablaParseo.add(new ItemTablaParseo(11,"sum","r",17));
+		tablaParseo.add(new ItemTablaParseo(11,"eq","r",17));
+		tablaParseo.add(new ItemTablaParseo(11,"cp","r",17));
+		tablaParseo.add(new ItemTablaParseo(11,"Seq","r",17));
+		tablaParseo.add(new ItemTablaParseo(12,"pc","r",5));
+		tablaParseo.add(new ItemTablaParseo(12,"$","r",5));
+		tablaParseo.add(new ItemTablaParseo(12,"Seq","r",5));
+		tablaParseo.add(new ItemTablaParseo(13,"div","r",14));
+		tablaParseo.add(new ItemTablaParseo(13,"res","r",14));
+		tablaParseo.add(new ItemTablaParseo(13,"pc","r",14));
+		tablaParseo.add(new ItemTablaParseo(13,"$","r",14));
+		tablaParseo.add(new ItemTablaParseo(13,"mul","r",14));
+		tablaParseo.add(new ItemTablaParseo(13,"lt","r",14));
+		tablaParseo.add(new ItemTablaParseo(13,"sum","r",14));
+		tablaParseo.add(new ItemTablaParseo(13,"eq","r",14));
+		tablaParseo.add(new ItemTablaParseo(13,"cp","r",14));
+		tablaParseo.add(new ItemTablaParseo(13,"Seq","r",14));
+		tablaParseo.add(new ItemTablaParseo(14,"op","shift",7));
+		tablaParseo.add(new ItemTablaParseo(14,"number","shift",9));
+		tablaParseo.add(new ItemTablaParseo(14,"id","shift",11));
+		tablaParseo.add(new ItemTablaParseo(14,"factor","goto",17));
+		tablaParseo.add(new ItemTablaParseo(15,"op","shift",7));
+		tablaParseo.add(new ItemTablaParseo(15,"number","shift",9));
+		tablaParseo.add(new ItemTablaParseo(15,"id","shift",11));
+		tablaParseo.add(new ItemTablaParseo(15,"factor","goto",16));
 		tablaParseo.add(new ItemTablaParseo(16,"div","r",12));
 		tablaParseo.add(new ItemTablaParseo(16,"res","r",12));
 		tablaParseo.add(new ItemTablaParseo(16,"pc","r",12));
@@ -151,79 +145,90 @@ public class MiniTinyParser {
 		tablaParseo.add(new ItemTablaParseo(16,"eq","r",12));
 		tablaParseo.add(new ItemTablaParseo(16,"cp","r",12));
 		tablaParseo.add(new ItemTablaParseo(16,"Seq","r",12));
-		tablaParseo.add(new ItemTablaParseo(17,"op","shift",6));
-		tablaParseo.add(new ItemTablaParseo(17,"number","shift",8));
-		tablaParseo.add(new ItemTablaParseo(17,"term","goto",24));
-		tablaParseo.add(new ItemTablaParseo(17,"id","shift",10));
-		tablaParseo.add(new ItemTablaParseo(17,"factor","goto",12));
-		tablaParseo.add(new ItemTablaParseo(18,"op","shift",6));
-		tablaParseo.add(new ItemTablaParseo(18,"simpleExp","goto",23));
-		tablaParseo.add(new ItemTablaParseo(18,"number","shift",8));
-		tablaParseo.add(new ItemTablaParseo(18,"term","goto",9));
-		tablaParseo.add(new ItemTablaParseo(18,"id","shift",10));
-		tablaParseo.add(new ItemTablaParseo(18,"factor","goto",12));
-		tablaParseo.add(new ItemTablaParseo(19,"op","shift",6));
-		tablaParseo.add(new ItemTablaParseo(19,"number","shift",8));
-		tablaParseo.add(new ItemTablaParseo(19,"term","goto",22));
-		tablaParseo.add(new ItemTablaParseo(19,"id","shift",10));
-		tablaParseo.add(new ItemTablaParseo(19,"factor","goto",12));
-		tablaParseo.add(new ItemTablaParseo(20,"op","shift",6));
-		tablaParseo.add(new ItemTablaParseo(20,"simpleExp","goto",21));
-		tablaParseo.add(new ItemTablaParseo(20,"number","shift",8));
-		tablaParseo.add(new ItemTablaParseo(20,"term","goto",9));
-		tablaParseo.add(new ItemTablaParseo(20,"id","shift",10));
-		tablaParseo.add(new ItemTablaParseo(20,"factor","goto",12));
-		tablaParseo.add(new ItemTablaParseo(21,"res","shift",17));
-		tablaParseo.add(new ItemTablaParseo(21,"sum","shift",19));
-		tablaParseo.add(new ItemTablaParseo(21,"pc","r",6));
-		tablaParseo.add(new ItemTablaParseo(21,"$","r",6));
-		tablaParseo.add(new ItemTablaParseo(21,"cp","r",6));
-		tablaParseo.add(new ItemTablaParseo(21,"Seq","r",6));
-		tablaParseo.add(new ItemTablaParseo(22,"mul","shift",14));
-		tablaParseo.add(new ItemTablaParseo(22,"div","shift",13));
-		tablaParseo.add(new ItemTablaParseo(22,"res","r",8));
-		tablaParseo.add(new ItemTablaParseo(22,"pc","r",8));
-		tablaParseo.add(new ItemTablaParseo(22,"$","r",8));
-		tablaParseo.add(new ItemTablaParseo(22,"lt","r",8));
-		tablaParseo.add(new ItemTablaParseo(22,"sum","r",8));
-		tablaParseo.add(new ItemTablaParseo(22,"eq","r",8));
-		tablaParseo.add(new ItemTablaParseo(22,"cp","r",8));
-		tablaParseo.add(new ItemTablaParseo(22,"Seq","r",8));
-		tablaParseo.add(new ItemTablaParseo(23,"res","shift",17));
-		tablaParseo.add(new ItemTablaParseo(23,"sum","shift",19));
-		tablaParseo.add(new ItemTablaParseo(23,"pc","r",5));
-		tablaParseo.add(new ItemTablaParseo(23,"$","r",5));
-		tablaParseo.add(new ItemTablaParseo(23,"cp","r",5));
-		tablaParseo.add(new ItemTablaParseo(23,"Seq","r",5));
-		tablaParseo.add(new ItemTablaParseo(24,"mul","shift",14));
-		tablaParseo.add(new ItemTablaParseo(24,"div","shift",13));
-		tablaParseo.add(new ItemTablaParseo(24,"res","r",9));
-		tablaParseo.add(new ItemTablaParseo(24,"pc","r",9));
-		tablaParseo.add(new ItemTablaParseo(24,"$","r",9));
-		tablaParseo.add(new ItemTablaParseo(24,"lt","r",9));
-		tablaParseo.add(new ItemTablaParseo(24,"sum","r",9));
-		tablaParseo.add(new ItemTablaParseo(24,"eq","r",9));
-		tablaParseo.add(new ItemTablaParseo(24,"cp","r",9));
-		tablaParseo.add(new ItemTablaParseo(24,"Seq","r",9));
-		tablaParseo.add(new ItemTablaParseo(25,"cp","shift",26));
-		tablaParseo.add(new ItemTablaParseo(26,"div","r",14));
-		tablaParseo.add(new ItemTablaParseo(26,"res","r",14));
-		tablaParseo.add(new ItemTablaParseo(26,"pc","r",14));
-		tablaParseo.add(new ItemTablaParseo(26,"$","r",14));
-		tablaParseo.add(new ItemTablaParseo(26,"mul","r",14));
-		tablaParseo.add(new ItemTablaParseo(26,"lt","r",14));
-		tablaParseo.add(new ItemTablaParseo(26,"sum","r",14));
-		tablaParseo.add(new ItemTablaParseo(26,"eq","r",14));
-		tablaParseo.add(new ItemTablaParseo(26,"cp","r",14));
-		tablaParseo.add(new ItemTablaParseo(26,"Seq","r",14));
-		tablaParseo.add(new ItemTablaParseo(27,"id","shift",2));
-		tablaParseo.add(new ItemTablaParseo(27,"stmt","goto",28));
-		tablaParseo.add(new ItemTablaParseo(27,"assign_stmt","goto",4));
-		tablaParseo.add(new ItemTablaParseo(28,"pc","r",1));
-		tablaParseo.add(new ItemTablaParseo(28,"$","r",1));
+		tablaParseo.add(new ItemTablaParseo(17,"div","r",13));
+		tablaParseo.add(new ItemTablaParseo(17,"res","r",13));
+		tablaParseo.add(new ItemTablaParseo(17,"pc","r",13));
+		tablaParseo.add(new ItemTablaParseo(17,"$","r",13));
+		tablaParseo.add(new ItemTablaParseo(17,"mul","r",13));
+		tablaParseo.add(new ItemTablaParseo(17,"lt","r",13));
+		tablaParseo.add(new ItemTablaParseo(17,"sum","r",13));
+		tablaParseo.add(new ItemTablaParseo(17,"eq","r",13));
+		tablaParseo.add(new ItemTablaParseo(17,"cp","r",13));
+		tablaParseo.add(new ItemTablaParseo(17,"Seq","r",13));
+		tablaParseo.add(new ItemTablaParseo(18,"op","shift",7));
+		tablaParseo.add(new ItemTablaParseo(18,"number","shift",9));
+		tablaParseo.add(new ItemTablaParseo(18,"term","goto",25));
+		tablaParseo.add(new ItemTablaParseo(18,"id","shift",11));
+		tablaParseo.add(new ItemTablaParseo(18,"factor","goto",13));
+		tablaParseo.add(new ItemTablaParseo(19,"op","shift",7));
+		tablaParseo.add(new ItemTablaParseo(19,"simpleExp","goto",24));
+		tablaParseo.add(new ItemTablaParseo(19,"number","shift",9));
+		tablaParseo.add(new ItemTablaParseo(19,"term","goto",10));
+		tablaParseo.add(new ItemTablaParseo(19,"id","shift",11));
+		tablaParseo.add(new ItemTablaParseo(19,"factor","goto",13));
+		tablaParseo.add(new ItemTablaParseo(20,"op","shift",7));
+		tablaParseo.add(new ItemTablaParseo(20,"number","shift",9));
+		tablaParseo.add(new ItemTablaParseo(20,"term","goto",23));
+		tablaParseo.add(new ItemTablaParseo(20,"id","shift",11));
+		tablaParseo.add(new ItemTablaParseo(20,"factor","goto",13));
+		tablaParseo.add(new ItemTablaParseo(21,"op","shift",7));
+		tablaParseo.add(new ItemTablaParseo(21,"simpleExp","goto",22));
+		tablaParseo.add(new ItemTablaParseo(21,"number","shift",9));
+		tablaParseo.add(new ItemTablaParseo(21,"term","goto",10));
+		tablaParseo.add(new ItemTablaParseo(21,"id","shift",11));
+		tablaParseo.add(new ItemTablaParseo(21,"factor","goto",13));
+		tablaParseo.add(new ItemTablaParseo(22,"res","shift",18));
+		tablaParseo.add(new ItemTablaParseo(22,"sum","shift",20));
+		tablaParseo.add(new ItemTablaParseo(22,"pc","r",7));
+		tablaParseo.add(new ItemTablaParseo(22,"$","r",7));
+		tablaParseo.add(new ItemTablaParseo(22,"cp","r",7));
+		tablaParseo.add(new ItemTablaParseo(22,"Seq","r",7));
+		tablaParseo.add(new ItemTablaParseo(23,"mul","shift",15));
+		tablaParseo.add(new ItemTablaParseo(23,"div","shift",14));
+		tablaParseo.add(new ItemTablaParseo(23,"res","r",9));
+		tablaParseo.add(new ItemTablaParseo(23,"pc","r",9));
+		tablaParseo.add(new ItemTablaParseo(23,"$","r",9));
+		tablaParseo.add(new ItemTablaParseo(23,"lt","r",9));
+		tablaParseo.add(new ItemTablaParseo(23,"sum","r",9));
+		tablaParseo.add(new ItemTablaParseo(23,"eq","r",9));
+		tablaParseo.add(new ItemTablaParseo(23,"cp","r",9));
+		tablaParseo.add(new ItemTablaParseo(23,"Seq","r",9));
+		tablaParseo.add(new ItemTablaParseo(24,"res","shift",18));
+		tablaParseo.add(new ItemTablaParseo(24,"sum","shift",20));
+		tablaParseo.add(new ItemTablaParseo(24,"pc","r",6));
+		tablaParseo.add(new ItemTablaParseo(24,"$","r",6));
+		tablaParseo.add(new ItemTablaParseo(24,"cp","r",6));
+		tablaParseo.add(new ItemTablaParseo(24,"Seq","r",6));
+		tablaParseo.add(new ItemTablaParseo(25,"mul","shift",15));
+		tablaParseo.add(new ItemTablaParseo(25,"div","shift",14));
+		tablaParseo.add(new ItemTablaParseo(25,"res","r",10));
+		tablaParseo.add(new ItemTablaParseo(25,"pc","r",10));
+		tablaParseo.add(new ItemTablaParseo(25,"$","r",10));
+		tablaParseo.add(new ItemTablaParseo(25,"lt","r",10));
+		tablaParseo.add(new ItemTablaParseo(25,"sum","r",10));
+		tablaParseo.add(new ItemTablaParseo(25,"eq","r",10));
+		tablaParseo.add(new ItemTablaParseo(25,"cp","r",10));
+		tablaParseo.add(new ItemTablaParseo(25,"Seq","r",10));
+		tablaParseo.add(new ItemTablaParseo(26,"cp","shift",27));
+		tablaParseo.add(new ItemTablaParseo(27,"div","r",15));
+		tablaParseo.add(new ItemTablaParseo(27,"res","r",15));
+		tablaParseo.add(new ItemTablaParseo(27,"pc","r",15));
+		tablaParseo.add(new ItemTablaParseo(27,"$","r",15));
+		tablaParseo.add(new ItemTablaParseo(27,"mul","r",15));
+		tablaParseo.add(new ItemTablaParseo(27,"lt","r",15));
+		tablaParseo.add(new ItemTablaParseo(27,"sum","r",15));
+		tablaParseo.add(new ItemTablaParseo(27,"eq","r",15));
+		tablaParseo.add(new ItemTablaParseo(27,"cp","r",15));
+		tablaParseo.add(new ItemTablaParseo(27,"Seq","r",15));
+		tablaParseo.add(new ItemTablaParseo(28,"id","shift",3));
+		tablaParseo.add(new ItemTablaParseo(28,"stmt","goto",29));
+		tablaParseo.add(new ItemTablaParseo(28,"assign_stmt","goto",5));
+		tablaParseo.add(new ItemTablaParseo(29,"pc","r",2));
+		tablaParseo.add(new ItemTablaParseo(29,"$","r",2));
 	}
 	public void generarProducciones(){
-		producciones.add(new Produccion("program","stmtSeq $", new Item(0)));
+		producciones.add(new Produccion("program'","program $", new Item(0)));
+		producciones.add(new Produccion("program","stmtSeq", new Item(0)));
 		producciones.add(new Produccion("stmtSeq","stmtSeq pc stmt", new Item(0)));
 		producciones.add(new Produccion("stmtSeq","stmt", new Item(0)));
 		producciones.add(new Produccion("stmt","assign_stmt", new Item(0)));
@@ -250,38 +255,53 @@ public class MiniTinyParser {
 		return "goto";
 	}
 
-	public void procesoParseo(String input){
+	public void revisarArchivo(){
+		for (Map.Entry<Integer, String> entry : input.entrySet()) {
+			Integer key = entry.getKey();
+			String value = entry.getValue();
+			procesoParseo(value,key);
+		}
+	}
+	public void procesoParseo(String input, int lineaActual){
 		imprimirTabla();
-		input += "$";
+		boolean aceptado = false;
+		input += " $";
 		Stack estados = new Stack();
 		estados.push(0);
 		int i = 0;
 		boolean Goto = false;
+		String[] parts = input.split(" ");
+		ItemTablaParseo encontrado = null;
+		String consumido = "";
+		int cantParts = parts.length;
+		String actualString ="";
 		try{
 			while(true){
-				Character ch = input.charAt(i);
-				while (!SLR.getAlfabeto().contains(ch)){//si i llega al input.length() significa que no pertenece al alfabeto
-					i++;
-					if (i != input.length())
-						ch = input.charAt(i);
-					else
-						break;
-				}
+				String ch = parts[i];
 				int actual = (int)estados.peek();
-				ItemTablaParseo encontrado = buscarItem(ch.toString(),actual);
+				if (!Goto)
+					encontrado = buscarItem(ch,actual);
 				String op = (String)encontrado.getOperacion();
 				if (op.equals("r"))
 					op = "reduce";
 				if (Goto)
 					op ="goto";
-				System.out.format("%32s%10s%10s", estados, input.substring(i),op);
+				System.out.format("%32s%10s%10s", estados, consumido,op+encontrado.getNextEstado());
 				System.out.println("");
 				if (encontrado.getOperacion().equals("shift")){
 					i++;
+					actualString += parts[i];
+					consumido = "";
+						for (int b = 0;b+i<parts.length;b++){
+							consumido += " "+ parts[b+i];
+					}
 					estados.push(encontrado.getNextEstado());
 				}
 				else if (encontrado.getOperacion().equals("r")&&!Goto){
-				int cantidad = producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll("\\s", "").length();
+				int cantidad = producciones.get((int)encontrado.getNextEstado()).getCuerpo().split(" ").length;
+				if ( producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll("\\s", "").isEmpty()){
+					cantidad--;
+				}
 				while(cantidad>0){
 					estados.pop();
 					cantidad--;
@@ -304,12 +324,18 @@ public class MiniTinyParser {
 				estados.push(estadoEncontrado);
 				Goto = false;
 				}
-				if (encontrado.getOperacion().equals("accept"))
+				if (encontrado.getOperacion().equals("accept")){
+					System.out.println("Entrada aceptada en la linea: "+lineaActual);
 					break;
+				}
 			}
 		}catch(Exception e){
-			System.out.println("La entrada no pudo parsearse.");
-			System.out.println("Se parseo hasta: " + input.substring(0,i));
+						consumido = "";
+			for (int b = 0;b+i<parts.length;b++){
+				consumido += " "+ parts[b+i];
+			}
+			System.out.println("La entrada: "+ input +"no pudo parsearse en la linea: "+lineaActual);
+			System.out.println("Se parseo hasta: " + actualString);
 			System.out.println("Faltó parsear: " + input.substring(i));
 		}
 	}

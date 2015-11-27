@@ -1,15 +1,20 @@
 COMPILER TestLR1
+        
+CHARACTERS
+letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
+digit = "0123456789".
+tab = CHR(09).
 
-	TOKENS
-	  a = 'a'.
-	  b = 'b'.
-	  c = 'c'.
-	  d = 'd'.
+TOKENS
+  a = 'a'.
+  b = 'b'.
+  c = 'c'.
+  d = 'd'.
 
-	PRODUCTIONS
-		Sp = S.
-		S = a H d | b K d | a K e | b H e.
-		H = c.
-		K = c.
+PRODUCTIONS
+        Sp = S.
+        S = a H d | b K d | a K e | b H e.
+        H = c.
+        K = c.
 	
 END TestLR1.

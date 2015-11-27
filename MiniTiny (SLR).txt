@@ -19,6 +19,7 @@ op = '('.
 cp = ')'.
 
 PRODUCTIONS
+program' = program $. 
 program = stmtSeq.
 stmtSeq = stmtSeq pc stmt | stmt.
 stmt = assign_stmt.

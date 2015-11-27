@@ -1,5 +1,5 @@
 /**
- * Nombre del archivo: LexerAnalyzerParser.java
+ * Nombre del archivo: TestLR1Parser.java
  * Universidad del Valle de Guatemala
  * Pablo Diaz 13203 
  * Descripción: Tercer proyecto. Generador de ParserMain
@@ -8,7 +8,7 @@
 import java.util.Scanner;
 import javax.swing.JOptionPane;
 
-public class LexerAnalyzerParserMain {
+public class TestLR1ParserMain {
 
 /**
 * @param args the command line arguments
@@ -19,7 +19,7 @@ public class LexerAnalyzerParserMain {
 		Scanner keyboard = new Scanner(System.in);
 		System.out.println("Ingrese text a parsear");
 		input = JOptionPane.showInputDialog("Ingrese texto a parsear: ");
-		LexerAnalyzerParser objParser = new LexerAnalyzerParser(input);
+		TestLR1Parser objParser = new TestLR1Parser(input);
 		objParser.procesoParseo(input);
 	}
 }

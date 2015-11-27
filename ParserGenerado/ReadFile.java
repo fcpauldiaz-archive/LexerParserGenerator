@@ -21,7 +21,7 @@ import javax.swing.JFileChooser;
  */
 public class ReadFile {
     
-     public HashMap leerArchivo(File archivo){
+         public HashMap leerArchivo(File archivo){
       
         int contador=0;
         int tamaño=0;
@@ -47,35 +47,17 @@ public class ReadFile {
                HashMap<Integer,String> detailString = new HashMap();
                while ((sCurrentLine = br.readLine()) != null) {
                    
-                    sCurrentLine = sCurrentLine.replaceAll("\\.(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", "π");
+                    
                     
                     
                     if (!sCurrentLine.equals("")){
-                        if ((!sCurrentLine.contains("π"))&&!(sCurrentLine.contains("COMPILER")
-                                ||sCurrentLine.contains("CHARACTERS")
-                                ||sCurrentLine.contains("KEYWORDS")
-                                ||sCurrentLine.contains("TOKENS")
-                                ||sCurrentLine.contains("IGNORE")
-                                ||sCurrentLine.contains("PRODUCTIONS")
-                                )
-                            ){
-                           
-                                input +=sCurrentLine;
-                            
-                        }
-                        else{
-                            sCurrentLine = sCurrentLine.replaceAll("π", ".");
-                            input+=sCurrentLine;
-                            while (input.startsWith(" "))
-                                input = input.substring(1);
-                            detailString.put(cantidadLineas, input);
-                            input = "";
-                        }
+                        input+=sCurrentLine+"\r\n";
+                        detailString.put(cantidadLineas, sCurrentLine);
                     }
                     cantidadLineas++;
                 
                 }
-            
+             
                 
            // System.out.println("antes input");
             //System.out.println(input);
@@ -94,35 +76,6 @@ public class ReadFile {
         }
         return null;
         
-    }
-     public void crearArchivo(String output,String nombreArchivo){
-        try {
-            
-                
-                //output += "\r\n"+"\r\n"+"\r\n"+leerArchivo();
-                File file;
-                File dummy = new File("");
-                String path = dummy.getAbsolutePath();
-              
-               
-                file = new File(path+"/generador/"+nombreArchivo+".java");
-                // if FileCreator doesnt exists, then create it
-               
-                
-               
-                FileWriter fw = new FileWriter(file);
-                BufferedWriter bw = new BufferedWriter(fw);
-               
-                bw.write(output+"\r\n");
-            
-
-                bw.close();
-
-                System.out.println("Se ha creado el archivo " + nombreArchivo +" exitosamente");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
       public void crearArchivoParser(String output,String nombreArchivo){
         try {

@@ -1,5 +1,5 @@
 /**
- * Nombre del archivo: LexerAnalyzerParser.java
+ * Nombre del archivo: TestLR1Parser.java
  * Universidad del Valle de Guatemala
  * Pablo Diaz 13203 
  * Descripción: Tercer proyecto. Generador de Parser
@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class LexerAnalyzerParser {
+public class TestLR1Parser {
 
 	private final ArrayList<Produccion> producciones = new ArrayList();
 	private final ArrayList<ItemTablaParseo> tablaParseo = new ArrayList();
@@ -23,7 +23,7 @@ public class LexerAnalyzerParser {
 	private Automata LR;
 	private Errors errores = new Errors();
 
-	public LexerAnalyzerParser(String input){
+	public TestLR1Parser(String input){
 		this.input=input;
 		try
 		{
@@ -46,33 +46,31 @@ public class LexerAnalyzerParser {
 		generarProducciones();
 	}
 	public void generarItems(){
-		tablaParseo.add(new ItemTablaParseo(0,"c","shift",1));
-		tablaParseo.add(new ItemTablaParseo(0,"C","goto",2));
+		tablaParseo.add(new ItemTablaParseo(0,"a","shift",1));
+		tablaParseo.add(new ItemTablaParseo(0,"b","shift",2));
 		tablaParseo.add(new ItemTablaParseo(0,"S","goto",3));
-		tablaParseo.add(new ItemTablaParseo(0,"d","shift",4));
-		tablaParseo.add(new ItemTablaParseo(1,"c","shift",1));
-		tablaParseo.add(new ItemTablaParseo(1,"C","goto",9));
-		tablaParseo.add(new ItemTablaParseo(1,"d","shift",4));
-		tablaParseo.add(new ItemTablaParseo(2,"c","shift",5));
-		tablaParseo.add(new ItemTablaParseo(2,"C","goto",6));
-		tablaParseo.add(new ItemTablaParseo(2,"d","shift",7));
+		tablaParseo.add(new ItemTablaParseo(1,"H","goto",8));
+		tablaParseo.add(new ItemTablaParseo(1,"K","goto",9));
+		tablaParseo.add(new ItemTablaParseo(2,"H","goto",4));
+		tablaParseo.add(new ItemTablaParseo(2,"K","goto",5));
 		tablaParseo.add(new ItemTablaParseo(3,"$","accept",0));
-		tablaParseo.add(new ItemTablaParseo(4,"c","r",3));
-		tablaParseo.add(new ItemTablaParseo(4,"d","r",3));
-		tablaParseo.add(new ItemTablaParseo(5,"c","shift",5));
-		tablaParseo.add(new ItemTablaParseo(5,"C","goto",8));
-		tablaParseo.add(new ItemTablaParseo(5,"d","shift",7));
-		tablaParseo.add(new ItemTablaParseo(6,"$","r",1));
-		tablaParseo.add(new ItemTablaParseo(7,"$","r",3));
-		tablaParseo.add(new ItemTablaParseo(8,"$","r",2));
-		tablaParseo.add(new ItemTablaParseo(9,"c","r",2));
-		tablaParseo.add(new ItemTablaParseo(9,"d","r",2));
+		tablaParseo.add(new ItemTablaParseo(4,"e","shift",7));
+		tablaParseo.add(new ItemTablaParseo(5,"d","shift",6));
+		tablaParseo.add(new ItemTablaParseo(6,"$","r",2));
+		tablaParseo.add(new ItemTablaParseo(7,"$","r",4));
+		tablaParseo.add(new ItemTablaParseo(8,"d","shift",11));
+		tablaParseo.add(new ItemTablaParseo(9,"e","shift",10));
+		tablaParseo.add(new ItemTablaParseo(10,"$","r",3));
+		tablaParseo.add(new ItemTablaParseo(11,"$","r",1));
 	}
 	public void generarProducciones(){
-		producciones.add(new Produccion("S'","S", new Item(0)));
-		producciones.add(new Produccion("S","C C", new Item(0)));
-		producciones.add(new Produccion("C","c C", new Item(0)));
-		producciones.add(new Produccion("C","d", new Item(0)));
+		producciones.add(new Produccion("Sp","S", new Item(0)));
+		producciones.add(new Produccion("S","a H d", new Item(0)));
+		producciones.add(new Produccion("S","b K d", new Item(0)));
+		producciones.add(new Produccion("S","a K e", new Item(0)));
+		producciones.add(new Produccion("S","b H e", new Item(0)));
+		producciones.add(new Produccion("H","c", new Item(0)));
+		producciones.add(new Produccion("K","c", new Item(0)));
 	}
 	public String determinarOperacion(String letra){
 		if (terminal(letra)){

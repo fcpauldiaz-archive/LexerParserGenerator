@@ -652,6 +652,8 @@ public class ParserSLRGenerator {
             "import java.io.IOException;"+"\n"+
             "import java.io.ObjectInputStream;"+"\n"+
             "import java.io.ObjectOutputStream;"+"\n"+
+            "import java.util.Map;"+"\n"+
+            "import java.util.HashMap;"+"\n"+
           
            
           
@@ -660,14 +662,14 @@ public class ParserSLRGenerator {
             ""+"\n"+
             "\t"+"private final ArrayList<Produccion> producciones = new ArrayList();"+"\n"+
             "\t"+"private final ArrayList<ItemTablaParseo> tablaParseo = new ArrayList();"+"\n"+
-            "\t"+"private String input;"+"\n"+   
+            "\t"+"private HashMap<Integer,String> input;"+"\n"+   
             "\t"+"private Automata SLR;"+"\n");
            
             scanner_total +=
        
             "\t"+"private Errors errores = new Errors();"+"\n"+"\n"+
                 
-            "\t"+"public " + this.nombreArchivo+"Parser(String input){"+"\n"+
+            "\t"+"public " + this.nombreArchivo+"Parser(HashMap input){"+"\n"+
             "\t"+"\t"+"this.input=input;"+"\n"+
                             
           
@@ -749,10 +751,17 @@ public class ParserSLRGenerator {
            "\t"+"\t"+"\t"+ "return \"accept\";"+"\n"+
         "\t"+"\t"+"return \"goto\";"+"\n"+
         "\t"+"}"+"\n"+"\n";
-        
+       res += "\t"+"public void revisarArchivo(){"+"\n"+
+            	"\t"+"\t"+"for (Map.Entry<Integer, String> entry : input.entrySet()) {"+"\n"+
+			"\t"+"\t"+"\t"+"Integer key = entry.getKey();"+"\n"+
+			"\t"+"\t"+"\t"+"String value = entry.getValue();"+"\n"+
+			"\t"+"\t"+"\t"+"procesoParseo(value,key);"+"\n"+
+		"\t"+"\t"+"}"+"\n"+
+           "\t"+ "}"+"\n";   
     res += 
-         "\t"+"public void procesoParseo(String input){"+"\n"+
+         "\t"+"public void procesoParseo(String input, int lineaActual){"+"\n"+
           "\t"+ "\t"+"imprimirTabla();"+"\n"+
+           "\t"+"\t"+"boolean aceptado = false;"+"\n"+
          "\t"+ "\t"+"input += \" $\";"+"\n"+
          "\t"+ "\t"+"Stack estados = new Stack();"+"\n"+
          "\t"+ "\t"+"estados.push(0);"+"\n"+
@@ -823,8 +832,11 @@ public class ParserSLRGenerator {
                "\t"+"\t"+"\t"+"\t"+"Goto = false;"+"\n"+
            "\t"+ "\t"+"\t"+"\t"+"}"+"\n"+
            
-           "\t"+"\t"+ "\t"+"\t"+"if (encontrado.getOperacion().equals(\"accept\"))"+"\n"+
+           "\t"+"\t"+ "\t"+"\t"+"if (encontrado.getOperacion().equals(\"accept\")){"+"\n"+
+            "\t"+ "\t"+ "\t"+"\t"+"\t"+"System.out.println(\"Entrada aceptada en la linea: \"+lineaActual);"+"\n"+
               "\t"+ "\t"+ "\t"+"\t"+"\t"+"break;"+"\n"+
+              "\t"+ "\t"+ "\t"+"\t"+"}"+"\n"+
+            
            
             
         "\t"+"\t"+"\t"+"}"+"\n"+
@@ -833,9 +845,10 @@ public class ParserSLRGenerator {
             "\t"+"\t"+"\t"+"for (int b = 0;b+i<parts.length;b++){"+"\n"+
                 "\t"+"\t"+"\t"+"\t"+"consumido += \" \"+ parts[b+i];"+"\n"+
             "\t"+"\t"+"\t"+"}"+"\n"+
-            "\t"+"\t"+"\t"+"System.out.println(\"La entrada no pudo parsearse.\");"+"\n"+
+            "\t"+"\t"+"\t"+"System.out.println(\"La entrada: \"+ input +\"no pudo parsearse en la linea: \"+lineaActual);"+"\n"+
             "\t"+"\t"+"\t"+"System.out.println(\"Se parseo hasta: \" + actualString);"+"\n"+
             "\t"+"\t"+"\t"+"System.out.println(\"Faltó parsear: \" + input.substring(i));"+"\n"+
+            
        "\t"+"\t"+ "}"+"\n"+
     "\t"+"}"+"\n";
         
@@ -923,8 +936,8 @@ public class ParserSLRGenerator {
             " * Descripción: Tercer proyecto. Generador de ParserMain"+"\n"+
             "**/"+"\n"+
             ""+"\n"+
-            ""+"import java.util.Scanner;"+"\n"+
-            "import javax.swing.JOptionPane;"+"\n"+
+            ""+"import java.io.File;"+"\n"+
+            "import java.util.HashMap;"+"\n"+
             ""+"\n"+
             "public class "+this.nombreArchivo+"ParserMain {"+"\n"+
             ""+"\n"
@@ -934,13 +947,12 @@ public class ParserSLRGenerator {
            " */"+"\n"+
            "\t"+"public static void main(String[] args) {"+"\n"+
                "\t"+"\t"+ "// TODO code application logic here"+"\n"+
-               "\t"+"\t"+"String input;"+"\n"+
-               "\t"+"\t"+"Scanner keyboard = new Scanner(System.in);"+"\n"+
-               "\t"+"\t"+"System.out.println(\"Ingrese text a parsear\");"+"\n"+
-               "\t"+"\t"+"input = JOptionPane.showInputDialog(\"Ingrese texto a parsear: \");"+"\n"+
+                "ReadFile read = new ReadFile();"+"\n"+
+		"File file = new File(\"inputParser\"+\".txt\");"+"\n"+
+		"HashMap input = read.leerArchivo(file);"+"\n"+
+		
                "\t"+"\t" + this.nombreArchivo+"Parser"+" objParser " + "= new " + this.nombreArchivo+"Parser(input);"+"\n"+
-                 "\t"+"\t"+ "objParser.procesoParseo(input);"+"\n"+
-             
+                "objParser.revisarArchivo();"+"\n"+
                "\t"+"}"+"\n"+
                "}"
                ;

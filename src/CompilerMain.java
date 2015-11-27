@@ -10,6 +10,7 @@
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Scanner;
 
 
 
@@ -30,7 +31,7 @@ public class CompilerMain {
         // TODO code application logic here
          // TODO code application logic here
         ReadFile read = new ReadFile();
-        File file = new File("Test4"+".txt");
+        File file = new File("MiniTiny (SLR)"+".txt");
         
           HashMap cocol = read.leerArchivo(file);
         
@@ -54,22 +55,36 @@ public class CompilerMain {
             System.out.println("");
             System.out.println("Ejecute el Main de la carpeta generador para probar el input");
         
-        System.out.println("Cantidad Errores: " + errores.getCount());
-     
-      
-       
-        ParserSLRGenerator g = new ParserSLRGenerator(lexer.getProducciones(),lexer,generator.getNombreArchivo());
-        g.constructLR();
-        g.crearTablaParseo();
-        g.procesoParseo("id sum id");
-        g.generarParser();
-        g.serialize();
-        
-       /* ParserCanonicalLR LR = new ParserCanonicalLR(lexer.getProducciones(),lexer);
-        LR.construirAutomata();
-        LR.crearTablaParseo();*/
-        
+            System.out.println("Cantidad Errores: " + errores.getCount());
+
+
+
+            ParserSLRGenerator SLR = new ParserSLRGenerator(lexer.getProducciones(),lexer,generator.getNombreArchivo());
+            ParserCanonicalLR LR = new ParserCanonicalLR(lexer.getProducciones(),lexer,generator.getNombreArchivo());
+            System.out.println("Seleccione el tipo de parser");
+            System.out.println("1. SLR");
+            System.out.println("2. LR(1)");
+            Scanner keyboard = new Scanner(System.in);
+            System.out.println("Ingrese su opcion:");
+            String teclado = keyboard.nextLine();
+            if (teclado.equals("1")){
+                SLR.constructLR();
+                SLR.crearTablaParseo();
+               // SLR.procesoParseo("id assign_op number");
+                SLR.generarParser();
+                SLR.serialize();
+            }
+            else if (teclado.equals("2")){
+                LR.construirAutomata();
+                LR.crearTablaParseo();
+                LR.procesoParseo("a c d");
+                LR.generarParser();
+                LR.serialize();
+            }
+            else
+                System.out.println("Opción inválida. Orale");
         }
+       
     }
 
 }

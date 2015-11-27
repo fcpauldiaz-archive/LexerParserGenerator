@@ -1,4 +1,7 @@
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Stack;
@@ -22,11 +25,13 @@ public class ParserCanonicalLR {
     private Automata LR;
     private HashSet<Produccion> globalActual;
     private ArrayList<ItemTablaParseo> tablaParseo;
+    private String nombreArchivo;
     
-    public ParserCanonicalLR(ArrayList<Produccion> producciones,LexerSyntax syntax) {
+    public ParserCanonicalLR(ArrayList<Produccion> producciones,LexerSyntax syntax,String nombreArchivo) {
         this.tablaParseo = new ArrayList();
         this.producciones = producciones;
         this.syntax = syntax;
+        this.nombreArchivo = nombreArchivo;
     }
 
     public void construirAutomata(){
@@ -109,6 +114,7 @@ public class ParserCanonicalLR {
         
            
        }
+        LR.setTipo("LR(1)");
         System.out.println(LR);
     }
     
@@ -380,9 +386,7 @@ public class ParserCanonicalLR {
         String errorReduce = "";
          HashSet ver3 = new HashSet();
         for (int i = 0; i < LR.getEstados().size();i++){
-            if (i == 5){
-                System.out.println("");
-            }
+           
             Estado estadoActual = LR.getEstados().get(i);
             ArrayList<String> alfabeto = new ArrayList(LR.getAlfabeto());
             alfabeto.add("$");
@@ -520,6 +524,100 @@ public class ParserCanonicalLR {
                 System.out.println("Estado " + j +" : "+parts[j]);
     }
     
+    public void procesoParseo(String input){
+        input += " $";
+        Stack estados = new Stack();
+        estados.push(0);
+        int i = 0;
+        boolean Goto = false;
+        String[] parts = input.split(" ");
+         ItemTablaParseo encontrado = null;
+         String consumido = "";
+         String actualString ="";
+         int cantParts = parts.length;
+        try{
+            while(true){
+               String ch = parts[i];
+              
+               
+                int actual = (int)estados.peek();
+               
+                if (!Goto)
+                    encontrado = buscarItem(ch,actual);
+                String op = (String)encontrado.getOperacion();
+                if (op.equals("r"))
+                    op = "reduce";
+                if (Goto)
+                    op = "goto";
+                
+                System.out.format("%32s%10s%10s", estados, consumido,op+""+encontrado.getNextEstado());
+                System.out.println("");
+
+                //op += encontrado.getNextEstado();
+
+                if (encontrado.getOperacion().equals("shift")){
+                    i++;
+                    actualString += parts[i];
+                    consumido = "";
+                    for (int b = 0;b+i<parts.length;b++){
+                        consumido += " "+ parts[b+i];
+                    }
+                    estados.push(encontrado.getNextEstado());
+                }
+                else if (encontrado.getOperacion().equals("r")&&!Goto){
+                   // System.out.println("i1 " + producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll("\\s", "").length());
+                    //System.out.println( producciones.get((int)encontrado.getNextEstado()).getCuerpo().split(" ").length);
+                    int cantidad = producciones.get((int)encontrado.getNextEstado()).getCuerpo().split(" ").length;
+                    if ( producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll("\\s", "").isEmpty()){
+                        cantidad--;
+                        
+                    }
+
+                    while(cantidad>0){
+                        estados.pop();
+                        cantidad--;
+                    }
+                    Goto = true;
+                }
+                else if (Goto){
+                    int buscarEstado = (int)estados.peek();
+                    String transicion = producciones.get((int)encontrado.getNextEstado()).getCabeza();
+                    int estadoEncontrado = -1;
+                    for (int j = 0;j<LR.getEstados().size();j++){
+                        if (j == buscarEstado){
+                            for(Transicion trans : (ArrayList<Transicion>)LR.getEstados().get(j).getTransiciones()){
+                                if (trans.getSimbolo().equals(transicion)){
+                                    estadoEncontrado= LR.getEstados().indexOf(trans.getFin());
+
+                                }
+                            }
+                        }
+                    }
+                    estados.push(estadoEncontrado);
+                    Goto = false;
+                }
+
+
+
+
+                 if (encontrado.getOperacion().equals("accept"))
+                    break;
+
+
+            }
+        }catch(Exception e){
+            consumido = "";
+            for (int b = 0;b+i<parts.length;b++){
+                consumido += " "+ parts[b+i];
+            }
+            System.out.println("La entrada no pudo parsearse.");
+            System.out.println("Se parseo hasta: " + actualString);
+            System.out.println("Faltó parsear: " + consumido);
+            
+        }
+    }
+    
+    
     public int indexString(String[] TYPES,String search){
       
         int index = -1;
@@ -530,5 +628,353 @@ public class ParserCanonicalLR {
             }
         }
         return index;
+    }
+    
+    public void crearMainParser(){
+       String scanner_total = (
+            "/**"+"\n"+
+            " * Nombre del archivo: "+this.nombreArchivo+"Parser.java"+"\n"+
+            " * Universidad del Valle de Guatemala"+"\n"+
+            " * Pablo Diaz 13203 " + "\n"+
+            " * Descripción: Tercer proyecto. Generador de ParserMain"+"\n"+
+            "**/"+"\n"+
+            ""+"\n"+
+            ""+"import java.util.Scanner;"+"\n"+
+            "import javax.swing.JOptionPane;"+"\n"+
+            ""+"\n"+
+            "public class "+this.nombreArchivo+"ParserMain {"+"\n"+
+            ""+"\n"
+            );
+       scanner_total +=   "/**"+"\n"+
+            "* @param args the command line arguments"+"\n"+
+           " */"+"\n"+
+           "\t"+"public static void main(String[] args) {"+"\n"+
+               "\t"+"\t"+ "// TODO code application logic here"+"\n"+
+               "\t"+"\t"+"String input;"+"\n"+
+               "\t"+"\t"+"Scanner keyboard = new Scanner(System.in);"+"\n"+
+               "\t"+"\t"+"System.out.println(\"Ingrese text a parsear\");"+"\n"+
+               "\t"+"\t"+"input = JOptionPane.showInputDialog(\"Ingrese texto a parsear: \");"+"\n"+
+               "\t"+"\t" + this.nombreArchivo+"Parser"+" objParser " + "= new " + this.nombreArchivo+"Parser(input);"+"\n"+
+                 "\t"+"\t"+ "objParser.procesoParseo(input);"+"\n"+
+             
+               "\t"+"}"+"\n"+
+               "}"
+               ;
+         ReadFile fileCreator = new ReadFile();
+        fileCreator.crearArchivoParser(scanner_total, nombreArchivo+"ParserMain");
+    }
+        /**
+    * Genera la  estructura de la clase analizadora
+    */
+    public void generarParser() {
+
+        String scanner_total = (
+            "/**"+"\n"+
+            " * Nombre del archivo: "+this.nombreArchivo+"Parser.java"+"\n"+
+            " * Universidad del Valle de Guatemala"+"\n"+
+            " * Pablo Diaz 13203 " + "\n"+
+            " * Descripción: Tercer proyecto. Generador de Parser"+"\n"+
+            "**/"+"\n"+
+            ""+"\n"+
+           
+            "import java.util.HashSet;"+"\n"+
+            "import java.util.ArrayList;"+"\n"+
+            "import java.util.TreeMap;"+"\n"+
+            "import java.util.Stack;"+"\n"+
+            "import java.io.FileInputStream;"+"\n"+
+            "import java.io.FileOutputStream;"+"\n"+
+            "import java.io.IOException;"+"\n"+
+            "import java.io.ObjectInputStream;"+"\n"+
+            "import java.io.ObjectOutputStream;"+"\n"+
+          
+           
+          
+            ""+"\n"+
+            "public class "+this.nombreArchivo+"Parser {"+"\n"+
+            ""+"\n"+
+            "\t"+"private final ArrayList<Produccion> producciones = new ArrayList();"+"\n"+
+            "\t"+"private final ArrayList<ItemTablaParseo> tablaParseo = new ArrayList();"+"\n"+
+            "\t"+"private String input;"+"\n"+   
+            "\t"+"private Automata LR;"+"\n");
+           
+            scanner_total +=
+       
+            "\t"+"private Errors errores = new Errors();"+"\n"+"\n"+
+                
+            "\t"+"public " + this.nombreArchivo+"Parser(String input){"+"\n"+
+            "\t"+"\t"+"this.input=input;"+"\n"+
+                            
+          
+            "\t"+"\t"+  "try"+"\n"+
+            "\t"+"\t"+  "{"+"\n"+
+            "\t"+"\t"+"\t"+    "FileInputStream fileIn = new FileInputStream(\"automataLR.ser\");"+"\n"+
+            "\t"+"\t"+"\t"+     "ObjectInputStream in = new ObjectInputStream(fileIn);"+"\n"+
+            "\t"+"\t"+"\t"+     "LR = (Automata) in.readObject();"+"\n"+
+            "\t"+"\t"+"\t"+    "in.close();"+"\n"+
+            "\t"+"\t"+"\t"+    "fileIn.close();"+"\n"+
+            "\t"+"\t"+"\t"+    " System.out.println(LR.getEstados());"+"\n"+
+            "\t"+"\t"+ "}catch(IOException i)"+"\n"+
+            "\t"+"\t"+ "{"+"\n"+
+            "\t"+"\t"+"\t"+   "i.printStackTrace();"+"\n"+
+
+            "\t"+"\t"+"}catch(ClassNotFoundException c)"+"\n"+
+            "\t"+"\t"+"{"+"\n"+
+            "\t"+"\t"+"\t"+  "System.out.println(\"Automata class not found\");"+"\n"+
+            "\t"+"\t"+"\t"+  "c.printStackTrace();"+"\n"+
+
+            "\t"+"\t"+ "}"+"\n"+
+            "\t"+"\n"+
+            "\t"+"\t"+"generarItems();"+"\n"+
+            "\t"+"\t"+"generarProducciones();"+"\n"+
+                    
+                    
+           "\t" + "}"+"\n"    
+                
+        ;
+
+        //scanner_total += crearAutomatasTexto();
+        //scanner_total += generar();
+        scanner_total += copiarTablaParseo();
+        scanner_total += copiarProducciones();
+        scanner_total += generarMetodosParseo();
+       // scanner_total += ignoreWords();
+        scanner_total+="\n"+"}";
+        
+        ReadFile fileCreator = new ReadFile();
+        fileCreator.crearArchivoParser(scanner_total, nombreArchivo+"Parser");
+        this.crearMainParser();
+        
+    }
+     public String copiarTablaParseo(){
+        String res = "";
+        res += "\t"+"public void generarItems(){"+"\n";
+        for (int i = 0;i<tablaParseo.size();i++){
+            ItemTablaParseo itemActual = tablaParseo.get(i);
+            res += "\t"+"\t" + "tablaParseo.add(new ItemTablaParseo("+itemActual.getActualEstado()+","
+                    +"\""+itemActual.getSimbolo()+"\",\""+itemActual.getOperacion()+"\","+itemActual.getNextEstado()+"));"+"\n";
+        }
+        res+= "\t"+"}"+"\n";
+        return res;
+    }
+    
+    public String copiarProducciones(){
+        String res = "";
+        res += "\t"+"public void generarProducciones(){"+"\n";
+        for (int i = 0;i<producciones.size();i++){
+           Produccion p = producciones.get(i);
+           res += "\t"+"\t" + "producciones.add(new Produccion(\""+p.getCabeza()+"\",\""+p.getCuerpo()+"\", new Item("+p.getItem().getPosicion()+")));"+"\n";
+        }
+        res+= "\t"+"}"+"\n";
+        return res;
+    }
+    public String generarMetodosParseo(){
+        String res = "";
+          
+    res +=
+        "\t"+"public String determinarOperacion(String letra){"+"\n"+
+        "\t"+"\t"+"if (terminal(letra)){"+"\n"+
+            "\t"+"\t"+"\t"+"return \"shift\";"+"\n"+
+        "\t"+"\t"+"}"+"\n"+
+        "\t"+"\t"+"if (letra.contains(\"$\"))"+"\n"+
+           "\t"+"\t"+"\t"+ "return \"accept\";"+"\n"+
+        "\t"+"\t"+"return \"goto\";"+"\n"+
+        "\t"+"}"+"\n"+"\n";
+   
+    res += "\t"+"public void revisarArchivo(){"+"\n"+
+            	"\t"+"\t"+"for (Map.Entry<Integer, String> entry : input.entrySet()) {"+"\n"+
+			"\t"+"\t"+"\t"+"Integer key = entry.getKey();"+"\n"+
+			"\t"+"\t"+"\t"+"String value = entry.getValue();"+"\n"+
+			"\t"+"\t"+"\t"+"procesoParseo(value);"+"\n"+
+		"\t"+"\t"+"}"+"\n"+
+           "\t"+ "}";
+    
+    res += 
+         "\t"+"public void procesoParseo(String input){"+"\n"+
+          "\t"+ "\t"+"imprimirTabla();"+"\n"+
+         "\t"+ "\t"+"input += \" $\";"+"\n"+
+         "\t"+ "\t"+"Stack estados = new Stack();"+"\n"+
+         "\t"+ "\t"+"estados.push(0);"+"\n"+
+         "\t"+ "\t"+"int i = 0;"+"\n"+
+         "\t"+ "\t"+"boolean Goto = false;"+"\n"+
+         "\t"+ "\t"+"String[] parts = input.split(\" \");"+"\n"+
+         "\t"+ "\t"+"ItemTablaParseo encontrado = null;"+"\n"+
+         "\t"+ "\t"+"String consumido = \"\";"+"\n"+
+         "\t"+ "\t"+"int cantParts = parts.length;"+"\n"+
+         "\t"+ "\t"+"String actualString =\"\";"+"\n"+
+         "\t"+ "\t"+"try{"+"\n"+
+         "\t"+"\t"+ "\t"+"while(true){"+"\n"+
+             "\t"+"\t"+ "\t"+ "\t"+"String ch = parts[i];"+"\n"+
+        
+
+            "\t"+ "\t"+ "\t"+ "\t"+"int actual = (int)estados.peek();"+"\n"+
+             "\t"+ "\t"+ "\t"+ "\t"+"if (!Goto)"+"\n"+
+                    "\t"+ "\t"+ "\t"+ "\t"+"\t"+"encontrado = buscarItem(ch,actual);"+"\n"+
+
+             
+             "\t"+"\t"+ "\t"+ "\t"+"String op = (String)encontrado.getOperacion();"+"\n"+
+             "\t"+"\t"+ "\t"+ "\t"+"if (op.equals(\"r\"))"+"\n"+
+                 "\t"+"\t"+ "\t"+ "\t"+ "\t"+"op = \"reduce\";"+"\n"+
+             "\t"+"\t"+ "\t"+ "\t"+"if (Goto)"+"\n"+
+                 "\t"+"\t"+ "\t"+ "\t"+ "\t"+"op =\"goto\";"+"\n"+
+              "\t"+"\t"+"\t"+ "\t"+"System.out.format(\"%32s%10s%10s\", estados, consumido,op+encontrado.getNextEstado());"+"\n"+
+             "\t"+"\t"+ "\t"+ "\t"+"System.out.println(\"\");"+"\n"+
+            
+            //op += encontrado.getNextEstado();
+            
+            "\t"+"\t"+"\t"+"\t"+ "if (encontrado.getOperacion().equals(\"shift\")){"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"\t"+"i++;"+"\n"+
+                 "\t"+"\t"+"\t"+"\t"+"\t"+"actualString += parts[i];"+"\n"+
+                 "\t"+"\t"+"\t"+"\t"+"\t"+"consumido = \"\";"+"\n"+
+                    "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"for (int b = 0;b+i<parts.length;b++){"+"\n"+
+                       "\t"+"\t"+ "\t"+"\t"+"\t"+"\t"+"\t"+"consumido += \" \"+ parts[b+i];"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"\t"+"estados.push(encontrado.getNextEstado());"+"\n"+
+            "\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+            "\t"+"\t"+"\t"+"\t"+"else if (encontrado.getOperacion().equals(\"r\")&&!Goto){"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"int cantidad = producciones.get((int)encontrado.getNextEstado()).getCuerpo().split(\" \").length;"+"\n"+
+                 "\t"+"\t"+"\t"+"\t"+"if ( producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll(\"\\\\s\", \"\").isEmpty()){"+"\n"+
+                        "\t"+"\t"+"\t"+"\t"+"\t"+"cantidad--;"+"\n"+
+                        
+                    "\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+
+                "\t"+"\t"+"\t"+"\t"+"while(cantidad>0){"+"\n"+
+                    "\t"+"\t"+"\t"+"\t"+"\t"+"estados.pop();"+"\n"+
+                    "\t"+"\t"+"\t"+"\t"+"\t"+"cantidad--;"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"Goto = true;"+"\n"+
+            "\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+            "\t"+"\t"+"\t"+"\t"+"else if (Goto){"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"\t"+"int buscarEstado = (int)estados.peek();"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"\t"+"String transicion = producciones.get((int)encontrado.getNextEstado()).getCabeza();"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"\t"+"int estadoEncontrado = -1;"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"\t"+"for (int j = 0;j<LR.getEstados().size();j++){"+"\n"+
+                    "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"if (j == buscarEstado){"+"\n"+
+                        "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"for(Transicion trans : (ArrayList<Transicion>)LR.getEstados().get(j).getTransiciones()){"+"\n"+
+                           "\t"+"\t"+ "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"if (trans.getSimbolo().equals(transicion)){"+"\n"+
+                               "\t"+"\t"+"\t"+ "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"estadoEncontrado= LR.getEstados().indexOf(trans.getFin());"+"\n"+
+                                
+                            "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+                        "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+                    "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+               "\t"+"\t"+"\t"+"\t"+"estados.push(estadoEncontrado);"+"\n"+
+               "\t"+"\t"+"\t"+"\t"+"Goto = false;"+"\n"+
+           "\t"+ "\t"+"\t"+"\t"+"}"+"\n"+
+           
+           "\t"+"\t"+ "\t"+"\t"+"if (encontrado.getOperacion().equals(\"accept\"))"+"\n"+
+              "\t"+ "\t"+ "\t"+"\t"+"\t"+"break;"+"\n"+
+           
+            
+        "\t"+"\t"+"\t"+"}"+"\n"+
+        "\t"+"\t"+"}catch(Exception e){"+"\n"+
+            "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"consumido = \"\";"+"\n"+
+            "\t"+"\t"+"\t"+"for (int b = 0;b+i<parts.length;b++){"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"consumido += \" \"+ parts[b+i];"+"\n"+
+            "\t"+"\t"+"\t"+"}"+"\n"+
+            "\t"+"\t"+"\t"+"System.out.println(\"La entrada no pudo parsearse.\");"+"\n"+
+            "\t"+"\t"+"\t"+"System.out.println(\"Se parseo hasta: \" + actualString);"+"\n"+
+            "\t"+"\t"+"\t"+"System.out.println(\"Faltó parsear: \" + input.substring(i));"+"\n"+
+       "\t"+"\t"+ "}"+"\n"+
+    "\t"+"}"+"\n";
+        
+        res+=  
+        "\t"+"public ItemTablaParseo buscarItem(String simbolo, int estado){"+"\n"+
+        "\t"+"\t"+"for (int i = 0;i<tablaParseo.size();i++){"+"\n"+
+            "\t"+"\t"+"\t"+"if ((int)tablaParseo.get(i).getActualEstado() == estado &&"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"tablaParseo.get(i).getSimbolo().equals(simbolo))"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"return tablaParseo.get(i);"+"\n"+
+       "\t"+"\t"+ "}"+"\n"+
+       "\t"+"\t"+ "return null;"+"\n"+
+    "\t"+"}"+"\n";
+        
+        res += 
+     "\t"+"/**"+"\n"+
+     "\t"+" * Método que dice si es terminal o no el símobolo"+"\n"+
+     "\t"+" * @param simbolo"+"\n"+
+     "\t"+" * @return true/false"+"\n"+
+     "\t"+" */"+"\n"+
+     "\t"+"public boolean terminal(String simbolo){"+"\n"+
+         "\t"+ "\t"+"return searchProductions(simbolo).isEmpty();"+"\n"+
+    "\t"+"}"+"\n";
+        
+    res += 
+    "\t"+ "/**"+"\n"+
+    "\t"+ "* devuleve un array con las producciones que tengan al input como cabeza"+"\n"+
+    "\t"+ "* @param cabeza"+"\n"+
+    "\t"+ "* @return "+"\n"+
+    "\t"+ "*/"+"\n"+
+   "\t"+ "public ArrayList<Produccion> searchProductions(String cabeza){"+"\n"+
+        "\t"+"\t"+"ArrayList<Produccion> prod = new ArrayList();"+"\n"+
+        "\t"+"\t"+"for (int i = 0 ;i<producciones.size();i++){"+"\n"+
+            "\t"+"\t"+"\t"+"if (producciones.get(i).getCabeza().equals(cabeza))"+"\n"+
+                "\t"+"\t"+"\t"+"prod.add(producciones.get(i));"+"\n"+
+        "\t"+"\t"+"}"+"\n"+
+        "\t"+"\t"+"return prod;"+"\n"+
+    "\t"+"}"+"\n";
+    
+        res += 
+               "\t"+"public void imprimirTabla(){"+"\n"+
+                 "\t"+"\t"+"String acum = \"\\t\" + \" \";"+"\n"+
+                 "\t"+"\t"+"ArrayList<String> alfabeto = new ArrayList(LR.getAlfabeto());"+"\n"+
+                 "\t"+"\t"+"alfabeto.add(\"$\");"+"\n"+
+                 "\t"+"\t"+"for (String letra: alfabeto){"+"\n"+
+                    "\t"+"\t"+"\t"+"acum += letra + \"\\t\";"+"\n"+
+                 "\t"+"\t"+"}"+"\n"+
+                
+               "\t"+"\t"+"String tabla = \"\";"+"\n"+
+               "\t"+"\t"+"int anterior = 0;"+"\n"+
+               "\t"+"\t"+"for (int k = 0;k<tablaParseo.size();k++){"+"\n"+
+
+                "\t"+"\t"+"\t"+"if (k == 0){"+"\n"+
+                      "\t"+"\t"+"\t"+"tabla += (int)tablaParseo.get(k).getActualEstado();"+"\n"+
+                  "\t"+"\t"+"\t"+"}"+"\n"+
+                  "\t"+"\t"+"\t"+"int espacio =1;"+"\n"+
+                  //System.out.println(k);
+                  //System.out.println(alfabeto.indexOf(tablaParseo.get(k).getSimbolo()));
+                  "\t"+"\t"+"\t"+"espacio += Math.abs(k-alfabeto.indexOf(tablaParseo.get(k).getSimbolo()))%6;"+"\n"+
+                   //System.out.println(espacio);
+                   //  System.out.println("");
+                  "\t"+"\t"+"\t"+"tabla += tablaParseo.get(k).toString(espacio);"+"\n"+
+
+                   "\t"+"\t"+"\t"+"if (k+1<tablaParseo.size()){"+"\n"+
+                       "\t"+"\t"+"\t"+"\t"+"if ((int)tablaParseo.get(k+1).getActualEstado()!=anterior){"+"\n"+
+                           "\t"+"\t"+"\t"+"\t"+"\t"+"tabla += \"\\n\"+(int)tablaParseo.get(k+1).getActualEstado();"+"\n"+
+                           "\t"+"\t"+"\t"+"\t"+"\t"+"anterior = (int)tablaParseo.get(k+1).getActualEstado();"+"\n"+
+                       "\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+                   "\t"+"\t"+"\t"+"}"+"\n"+
+
+              "\t"+"\t"+"}"+"\n"+
+               "\t"+"\t"+"System.out.println(tabla);"+"\n"+
+               "\t"+"\t"+"System.out.println(\"\");"+"\n"+
+             "\t" + "}"+"\n";
+    
+        return res;
+    }
+    
+     public void serialize(){
+        try
+        {
+         FileOutputStream fileOut =
+         new FileOutputStream("ParserGenerado/automataLR.ser");
+         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+         out.writeObject(LR);
+         out.close();
+         fileOut.close();
+         System.out.println("Serialized data is saved in /ParserGenerado/automataLR.ser");
+        }catch(IOException i)
+        {
+            i.printStackTrace();
+        }
+         
+      
+     
+    }
+    public ItemTablaParseo buscarItem(String simbolo, int estado){
+        for (int i = 0;i<tablaParseo.size();i++){
+            if ((int)tablaParseo.get(i).getActualEstado() == estado &&
+                tablaParseo.get(i).getSimbolo().equals(simbolo))
+                return tablaParseo.get(i);
+        }
+        return null;
     }
 }

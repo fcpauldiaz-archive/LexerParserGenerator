@@ -1,5 +1,5 @@
 /**
- * Nombre del archivo: MiniTiny.java
+ * Nombre del archivo: TestLR1.java
  * Universidad del Valle de Guatemala
  * Pablo Diaz 13203 
  * Descripción: Segundo proyecto. Generador de analizador léxico
@@ -15,7 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-public class MiniTiny {
+public class TestLR1 {
 
 	private Simulacion sim = new Simulacion();
 	private ArrayList<Automata> automatas = new ArrayList();
@@ -27,80 +27,31 @@ public class MiniTiny {
 	private String tk  = "";
 	private Errors errores = new Errors();
 
-	public MiniTiny(HashMap input){
+	public TestLR1(HashMap input){
 		this.input=input;
 	
 	}
 	public void automatas(){
 
 		AFNConstruct ThomsonAlgorithim_0 = new AFNConstruct();
-		Automata temp_0 =ThomsonAlgorithim_0.afnSimple("/");
-		temp_0.setTipo("div");
+		Automata temp_0 =ThomsonAlgorithim_0.afnSimple("a");
+		temp_0.setTipo("a");
 		automatas.add(temp_0);
 
-		RegexConverter convert_1= new RegexConverter();
-		String regex_1 = convert_1.infixToPostfix("≤0∫1∫2∫3∫4∫5∫6∫7∫8∫9≥≤≤0∫1∫2∫3∫4∫5∫6∫7∫8∫9≥≥∞");
-		AFNConstruct ThomsonAlgorithim_1 = new AFNConstruct(regex_1);
-		ThomsonAlgorithim_1.construct();
-		Automata temp_1 = ThomsonAlgorithim_1.getAfn();
-		temp_1.setTipo("number");
+		AFNConstruct ThomsonAlgorithim_1 = new AFNConstruct();
+		Automata temp_1 =ThomsonAlgorithim_0.afnSimple("b");
+		temp_1.setTipo("b");
 		automatas.add(temp_1);
 
 		AFNConstruct ThomsonAlgorithim_2 = new AFNConstruct();
-		Automata temp_2 =ThomsonAlgorithim_0.afnSimple("-");
-		temp_2.setTipo("res");
+		Automata temp_2 =ThomsonAlgorithim_0.afnSimple("c");
+		temp_2.setTipo("c");
 		automatas.add(temp_2);
 
 		AFNConstruct ThomsonAlgorithim_3 = new AFNConstruct();
-		Automata temp_3 =ThomsonAlgorithim_0.afnSimple("(");
-		temp_3.setTipo("op");
+		Automata temp_3 =ThomsonAlgorithim_0.afnSimple("d");
+		temp_3.setTipo("d");
 		automatas.add(temp_3);
-
-		AFNConstruct ThomsonAlgorithim_4 = new AFNConstruct();
-		Automata temp_4 =ThomsonAlgorithim_0.afnSimple(";");
-		temp_4.setTipo("pc");
-		automatas.add(temp_4);
-
-		RegexConverter convert_5= new RegexConverter();
-		String regex_5 = convert_5.infixToPostfix(":=");
-		AFNConstruct ThomsonAlgorithim_5 = new AFNConstruct(regex_5);
-		ThomsonAlgorithim_5.construct();
-		Automata temp_5 = ThomsonAlgorithim_5.getAfn();
-		temp_5.setTipo("assignop");
-		automatas.add(temp_5);
-
-		AFNConstruct ThomsonAlgorithim_6 = new AFNConstruct();
-		Automata temp_6 =ThomsonAlgorithim_0.afnSimple("*");
-		temp_6.setTipo("mul");
-		automatas.add(temp_6);
-
-		AFNConstruct ThomsonAlgorithim_7 = new AFNConstruct();
-		Automata temp_7 =ThomsonAlgorithim_0.afnSimple("<");
-		temp_7.setTipo("lt");
-		automatas.add(temp_7);
-
-		AFNConstruct ThomsonAlgorithim_8 = new AFNConstruct();
-		Automata temp_8 =ThomsonAlgorithim_0.afnSimple("+");
-		temp_8.setTipo("sum");
-		automatas.add(temp_8);
-
-		RegexConverter convert_9= new RegexConverter();
-		String regex_9 = convert_9.infixToPostfix("≤a∫b∫c∫d∫e∫f∫g∫h∫i∫j∫k∫l∫m∫n∫o∫p∫q∫r∫s∫t∫u∫v∫w∫x∫y∫z∫A∫B∫C∫D∫E∫F∫G∫H∫I∫J∫K∫L∫M∫N∫O∫P∫Q∫R∫S∫T∫U∫V∫W∫X∫Y∫Z≥≤≤a∫b∫c∫d∫e∫f∫g∫h∫i∫j∫k∫l∫m∫n∫o∫p∫q∫r∫s∫t∫u∫v∫w∫x∫y∫z∫A∫B∫C∫D∫E∫F∫G∫H∫I∫J∫K∫L∫M∫N∫O∫P∫Q∫R∫S∫T∫U∫V∫W∫X∫Y∫Z≥≥∞");
-		AFNConstruct ThomsonAlgorithim_9 = new AFNConstruct(regex_9);
-		ThomsonAlgorithim_9.construct();
-		Automata temp_9 = ThomsonAlgorithim_9.getAfn();
-		temp_9.setTipo("id");
-		automatas.add(temp_9);
-
-		AFNConstruct ThomsonAlgorithim_10 = new AFNConstruct();
-		Automata temp_10 =ThomsonAlgorithim_0.afnSimple("=");
-		temp_10.setTipo("eq");
-		automatas.add(temp_10);
-
-		AFNConstruct ThomsonAlgorithim_11 = new AFNConstruct();
-		Automata temp_11 =ThomsonAlgorithim_0.afnSimple(")");
-		temp_11.setTipo("cp");
-		automatas.add(temp_11);
 	}
 	 /**
  	* Método para revisar que tipo de sub autómata es aceptado por una 
