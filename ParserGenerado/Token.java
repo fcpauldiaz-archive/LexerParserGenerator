@@ -50,42 +50,6 @@ public class Token<T> implements Serializable {
 		return returnArray;
 	}
 	public void keyWords(){
-		keyMap.put("boolean","boolean");
-		keyMap.put("byte","byte");
-		keyMap.put("char","char");
-		keyMap.put("class","class");
-		keyMap.put(":","colon");
-		keyMap.put(",","comma");
-		keyMap.put("--","dec");
-		keyMap.put(".","dot");
-		keyMap.put("double","double");
-		keyMap.put("false","false");
-		keyMap.put("final","final");
-		keyMap.put("float","float");
-		keyMap.put("if","if");
-		keyMap.put("=","igual");
-		keyMap.put("++","inc");
-		keyMap.put("int","int");
-		keyMap.put("{","lbrace");
-		keyMap.put("[","lbrack");
-		keyMap.put("long","long");
-		keyMap.put("(","lpar");
-		keyMap.put("-","minus");
-		keyMap.put("new","new");
-		keyMap.put("!","not");
-		keyMap.put("null","null");
-		keyMap.put("+","plus");
-		keyMap.put("}","rbrace");
-		keyMap.put("]","rbrack");
-		keyMap.put(")","rpar");
-		keyMap.put("short","short");
-		keyMap.put("static","static");
-		keyMap.put("super","super");
-		keyMap.put("this","this");
-		keyMap.put("~","tilde");
-		keyMap.put("true","true");
-		keyMap.put("void","void");
-		keyMap.put("while","while");
 	}
 	@Override
 	public String toString() {

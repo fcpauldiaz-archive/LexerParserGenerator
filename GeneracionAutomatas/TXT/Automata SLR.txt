@@ -1,16 +1,16 @@
 -------SLR---------
-Alfabeto [P, (, )]
-Estado inicial [P => •ε , P => •( P ) P , S => •P $ ]
+Alfabeto [T, E, sum, id]
+Estado inicial [E => •T sum E $ , T => •id ]
 Conjutos de estados de aceptacion []
-Conjunto de Estados [[P => •ε , P => •( P ) P , S => •P $ ], [S => P •$ ], [P => •ε , P => ( •P ) P , P => •( P ) P ], [P => ( P •) P ], [P => ( P ) •P , P => •ε , P => •( P ) P ], [P => ( P ) P•]]
+Conjunto de Estados [[E => •T sum E $ , T => •id ], [E => T •sum E $ ], [T => id ], [E => T sum •E $ , E => •T sum E $ , E => •T , T => •id ], [E => T •sum E $ , E => T•], [E => T sum E •$ ]]
 Conjunto de transiciones: 
-([P => •ε , P => •( P ) P , S => •P $ ]-P-[S => P •$ ])
-([P => •ε , P => •( P ) P , S => •P $ ]-(-[P => •ε , P => ( •P ) P , P => •( P ) P ])
-([P => •ε , P => ( •P ) P , P => •( P ) P ]-P-[P => ( P •) P ])
-([P => •ε , P => ( •P ) P , P => •( P ) P ]-(-[P => •ε , P => ( •P ) P , P => •( P ) P ])
-([P => ( P •) P ]-)-[P => ( P ) •P , P => •ε , P => •( P ) P ])
-([P => ( P ) •P , P => •ε , P => •( P ) P ]-P-[P => ( P ) P•])
-([P => ( P ) •P , P => •ε , P => •( P ) P ]-(-[P => •ε , P => ( •P ) P , P => •( P ) P ])
+([E => •T sum E $ , T => •id ]-T-[E => T •sum E $ ])
+([E => •T sum E $ , T => •id ]-id-[T => id ])
+([E => T •sum E $ ]-sum-[E => T sum •E $ , E => •T sum E $ , E => •T , T => •id ])
+([E => T sum •E $ , E => •T sum E $ , E => •T , T => •id ]-T-[E => T •sum E $ , E => T•])
+([E => T sum •E $ , E => •T sum E $ , E => •T , T => •id ]-E-[E => T sum E •$ ])
+([E => T sum •E $ , E => •T sum E $ , E => •T , T => •id ]-id-[T => id ])
+([E => T •sum E $ , E => T•]-sum-[E => T sum •E $ , E => •T sum E $ , E => •T , T => •id ])
 
 Lenguaje r: null
 Cadena w ingresada: null

@@ -30,7 +30,7 @@ public class CompilerMain {
         // TODO code application logic here
          // TODO code application logic here
         ReadFile read = new ReadFile();
-        File file = new File("cocol"+".txt");
+        File file = new File("Test4"+".txt");
         
           HashMap cocol = read.leerArchivo(file);
         
@@ -58,15 +58,16 @@ public class CompilerMain {
      
       
        
-       /* ParserSLRGenerator g = new ParserSLRGenerator(lexer.getProducciones(),lexer,generator.getNombreArchivo());
+        ParserSLRGenerator g = new ParserSLRGenerator(lexer.getProducciones(),lexer,generator.getNombreArchivo());
         g.constructLR();
         g.crearTablaParseo();
-        //g.procesoParseo("(()())()");
+        g.procesoParseo("id sum id");
         g.generarParser();
-        g.serialize();*/
+        g.serialize();
         
-        ParserCanonicalLR LR = new ParserCanonicalLR(lexer.getProducciones(),lexer);
+       /* ParserCanonicalLR LR = new ParserCanonicalLR(lexer.getProducciones(),lexer);
         LR.construirAutomata();
+        LR.crearTablaParseo();*/
         
         }
     }

@@ -21,8 +21,10 @@ public class ParserCanonicalLR {
     private ArrayList globalClosure = new ArrayList();
     private Automata LR;
     private HashSet<Produccion> globalActual;
+    private ArrayList<ItemTablaParseo> tablaParseo;
     
     public ParserCanonicalLR(ArrayList<Produccion> producciones,LexerSyntax syntax) {
+        this.tablaParseo = new ArrayList();
         this.producciones = producciones;
         this.syntax = syntax;
     }
@@ -343,5 +345,190 @@ public class ParserCanonicalLR {
         }
         return prod;
     }
-
+    
+    public int indexOf(Produccion productions){
+        int index = -1;
+        for (int i = 0;i<producciones.size();i++){
+           
+            if (producciones.get(i).getCabeza().equals(productions.getCabeza())
+                &&
+                producciones.get(i).getCuerpo().equals(productions.getCuerpo())
+                &&
+                producciones.get(i).getItem().getPosicion().equals(0)){
+                return i;
+            }
+           
+        }
+        
+        
+        return index;
+    }
+    
+    public String determinarOperacion(String letra){
+        if (terminal(letra)){
+            return "shift";
+        }
+        if (letra.contains("$"))
+            return "accept";
+        return "goto";
+    }
+    
+    public void crearTablaParseo(){
+       
+        String error = "";
+        String errorShift = "";
+        String errorReduce = "";
+         HashSet ver3 = new HashSet();
+        for (int i = 0; i < LR.getEstados().size();i++){
+            if (i == 5){
+                System.out.println("");
+            }
+            Estado estadoActual = LR.getEstados().get(i);
+            ArrayList<String> alfabeto = new ArrayList(LR.getAlfabeto());
+            alfabeto.add("$");
+            for (String letra : alfabeto) {
+                for (Transicion trans: (ArrayList<Transicion>)estadoActual.getTransiciones()){
+                    if (trans.getSimbolo().equals(letra)){
+                        
+                        tablaParseo.add(new ItemTablaParseo(i,letra,determinarOperacion(letra),LR.getEstados().indexOf(trans.getFin())));
+                        
+                    }
+                }
+                
+            }
+            HashSet<Produccion> products = (HashSet<Produccion>) estadoActual.getId();
+            int cantidadReduce = 0;
+            int cantidadShift = 0;
+            System.out.println(products);
+            for (Produccion product : products) {
+               
+                if ((int)product.getItem().getPosicion() == product.getCuerpo().split(" ").length){
+                   
+                    int indiceBuscado = this.indexOf(product);
+                            
+                    if (indiceBuscado != -1){
+                        //HashSet resultadoFollow = syntax.follow(producciones.get(indiceBuscado).getCabeza());
+                        //syntax.getArrayGlobal().clear();
+                       tablaParseo.add(new ItemTablaParseo(i,(String)product.getLookahead(),"r",indiceBuscado));
+                        
+                    }
+                    cantidadReduce++;
+                   
+                } else{
+                    cantidadShift++;
+                  
+                } 
+                String[] parts = product.getCuerpo().split(" ");
+               
+                int indexOfDolar = indexString(parts,"$");
+                if (indexOfDolar == (int)product.getItem().getPosicion()){
+                     tablaParseo.add(new ItemTablaParseo(i,"$","accept",1));
+                }
+                
+            }
+            if (cantidadReduce>1 && cantidadShift <1)
+               error = ("Error reduce/reduce");
+            else if (cantidadReduce>=1 && cantidadShift>=1){
+                int es = 0;
+                ArrayList ver = new ArrayList();
+                ArrayList ver2 = new ArrayList();
+               
+                int in = -1;
+                for (int k = 0; k<tablaParseo.size();k++){
+                    ItemTablaParseo it = tablaParseo.get(k);
+                    
+                    if ((int)it.getActualEstado()==es){
+                        if (!ver.contains(it.getSimbolo())){
+                            ver.add(it.getSimbolo());
+                            ver2.add(it);
+                        }
+                        else{
+                            in = ver.indexOf(it.getSimbolo());
+                            ver3.add(ver2.get(in));
+                            ver3.add(it);
+                        }
+                        
+                    }
+                    else{
+                        es++;
+                        ver.clear();
+                        ver2.clear();
+                    }
+                    
+                }
+              
+                error = ("Error shift"+errorShift+"/reduce"+errorReduce);
+            }
+            
+        }
+        String acum = "\t" + " ";
+         ArrayList<String> alfabeto = new ArrayList(LR.getAlfabeto());
+          alfabeto.add("$");
+        for (String letra: alfabeto){
+           acum += letra + "\t";
+        }
+        // System.out.println(acum);
+        for (int h = 0;h<tablaParseo.size();h++){
+            if (tablaParseo.get(h).getOperacion().equals("r")){
+                if ((int)tablaParseo.get(h).getNextEstado()==0){
+                    tablaParseo.get(h).setOperacion("accept");
+                    
+                }
+            }
+                
+        }
+        
+        
+        String tabla = "";
+        int anterior = 0;
+        for (int k = 0;k<tablaParseo.size();k++){
+           
+           if (k == 0){
+               tabla += (int)tablaParseo.get(k).getActualEstado();
+           }
+           int espacio =1;
+           //System.out.println(k);
+           //System.out.println(alfabeto.indexOf(tablaParseo.get(k).getSimbolo()));
+           espacio += Math.abs(k-alfabeto.indexOf(tablaParseo.get(k).getSimbolo()))%6;
+            //System.out.println(espacio);
+            //  System.out.println("");
+           tabla += tablaParseo.get(k).toString(espacio);
+           
+            if (k+1<tablaParseo.size()){
+                if ((int)tablaParseo.get(k+1).getActualEstado()!=anterior){
+                    tabla += "\n"+(int)tablaParseo.get(k+1).getActualEstado();
+                    anterior = (int)tablaParseo.get(k+1).getActualEstado();
+                }
+            }
+           
+       }
+        System.out.println(tabla);
+      
+        System.out.println("");
+        ArrayList<ItemTablaParseo> conv = new ArrayList(ver3);
+        String[] parts = new String[conv.size()];
+         for (int j = 0 ;j<parts.length;j++)
+          parts[j] = "";
+        for (int j = 0;j<conv.size();j++){
+            String op = (String)conv.get(j).getOperacion();
+            if (op.equals("r"))
+                op = "reduce";
+           parts[(int)conv.get(j).getActualEstado()] += op+(int)conv.get(j).getNextEstado()+"/";
+        }
+        for (int j = 0 ;j<parts.length;j++)
+            if (!parts[j].isEmpty())
+                System.out.println("Estado " + j +" : "+parts[j]);
+    }
+    
+    public int indexString(String[] TYPES,String search){
+      
+        int index = -1;
+        for (int i=0;i<TYPES.length;i++) {
+            if (TYPES[i].equals(search)) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
 }

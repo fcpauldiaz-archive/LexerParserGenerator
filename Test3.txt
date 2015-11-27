@@ -1,0 +1,25 @@
+COMPILER Ejemplo
+
+CHARACTERS
+letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
+digit = "0123456789".
+tab=CHR(09).
+
+KEYWORDS
+if="if".
+while="while".
+else = "else".
+
+TOKENS
+
+id = letter{letter} EXCEPT KEYWORDS.
+number = digit{digit}.
+
+IGNORE " ".
+
+PRODUCTIONS
+
+S = a S b S .
+S =a .
+
+END Ejemplo.

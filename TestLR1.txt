@@ -1,0 +1,15 @@
+COMPILER TestLR1
+
+	TOKENS
+	  a = 'a'.
+	  b = 'b'.
+	  c = 'c'.
+	  d = 'd'.
+
+	PRODUCTIONS
+		Sp = S.
+		S = a H d | b K d | a K e | b H e.
+		H = c.
+		K = c.
+	
+END TestLR1.

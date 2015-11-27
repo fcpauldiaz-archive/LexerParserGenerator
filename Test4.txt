@@ -1,0 +1,16 @@
+COMPILER TresVeintitres
+
+CHARACTERS
+        letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
+        digit = "0123456789".
+
+TOKENS
+        number = digit{digit}.
+        id = letter{letter}.
+        sum = '+'.
+
+PRODUCTIONS
+        E = T sum E | T.
+        T = id.
+
+END TresVeintitres.

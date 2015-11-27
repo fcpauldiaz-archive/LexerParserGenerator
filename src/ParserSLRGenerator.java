@@ -314,16 +314,18 @@ public class ParserSLRGenerator {
             System.out.println(products);
             for (Produccion product : products) {
                
-                if ((int)product.getItem().getPosicion() == product.getCuerpo().replaceAll("\\s", "").length()){
+                if ((int)product.getItem().getPosicion() == product.getCuerpo().split(" ").length
+                      ||product.getCuerpo().isEmpty() ){
                    
                     int indiceBuscado = this.indexOf(product);
                             
                     if (indiceBuscado != -1){
                         HashSet resultadoFollow = syntax.follow(producciones.get(indiceBuscado).getCabeza());
                         syntax.getArrayGlobal().clear();
-                        for (String letra: (HashSet<String>)resultadoFollow){
-                            if (!letra.isEmpty())
-                                tablaParseo.add(new ItemTablaParseo(i,letra,"r",indiceBuscado));
+                        
+                        for (String letra2: (HashSet<String>)resultadoFollow){
+                            if (!letra2.isEmpty())
+                                tablaParseo.add(new ItemTablaParseo(i,letra2,"r",indiceBuscado));
                         }
                         
                     }
@@ -334,7 +336,8 @@ public class ParserSLRGenerator {
                   
                 } 
                 
-                if ((int)product.getItem().getPosicion() == product.getCuerpo().replaceAll("\\s", "").indexOf("$")){
+                 int indexOfDolar = indexString(product.getCuerpo().split(" "),"$");
+                if (indexOfDolar == (int)product.getItem().getPosicion()){
                      tablaParseo.add(new ItemTablaParseo(i,"$","accept",1));
                 }
                 
@@ -406,6 +409,7 @@ public class ParserSLRGenerator {
        }
         System.out.println(tabla);
         System.out.println("");
+        System.out.println(tablaParseo.size());
         ArrayList<ItemTablaParseo> conv = new ArrayList(ver3);
         String[] parts = new String[conv.size()];
          for (int j = 0 ;j<parts.length;j++)
@@ -470,38 +474,54 @@ public class ParserSLRGenerator {
     }
     
     public void procesoParseo(String input){
-        input += "$";
+        input += " $";
         Stack estados = new Stack();
         estados.push(0);
         int i = 0;
         boolean Goto = false;
+        String[] parts = input.split(" ");
+         ItemTablaParseo encontrado = null;
+         String consumido = "";
+         String actualString ="";
+         int cantParts = parts.length;
         try{
             while(true){
-                Character ch = input.charAt(i);
-                while (!LR.getAlfabeto().contains(ch)){//si i llega al input.length() significa que no pertenece al alfabeto
-                    i++;
-                    if (i != input.length())
-                        ch = input.charAt(i);
-                }
-                ch = input.charAt(i);
+               String ch = parts[i];
+              
+               
                 int actual = (int)estados.peek();
-                ItemTablaParseo encontrado = buscarItem(ch.toString(),actual);
+               
+                if (!Goto)
+                    encontrado = buscarItem(ch,actual);
                 String op = (String)encontrado.getOperacion();
                 if (op.equals("r"))
                     op = "reduce";
                 if (Goto)
                     op = "goto";
-                System.out.format("%32s%10s%10s", estados, input.substring(i),op);
+                
+                System.out.format("%32s%10s%10s", estados, consumido,op+""+encontrado.getNextEstado());
                 System.out.println("");
 
                 //op += encontrado.getNextEstado();
 
                 if (encontrado.getOperacion().equals("shift")){
                     i++;
+                    actualString += parts[i];
+                    consumido = "";
+                    for (int b = 0;b+i<parts.length;b++){
+                        consumido += " "+ parts[b+i];
+                    }
                     estados.push(encontrado.getNextEstado());
                 }
                 else if (encontrado.getOperacion().equals("r")&&!Goto){
-                    int cantidad = producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll("\\s", "").length();
+                   // System.out.println("i1 " + producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll("\\s", "").length());
+                    //System.out.println( producciones.get((int)encontrado.getNextEstado()).getCuerpo().split(" ").length);
+                    int cantidad = producciones.get((int)encontrado.getNextEstado()).getCuerpo().split(" ").length;
+                    if ( producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll("\\s", "").isEmpty()){
+                        cantidad--;
+                        
+                    }
+
                     while(cantidad>0){
                         estados.pop();
                         cantidad--;
@@ -535,9 +555,13 @@ public class ParserSLRGenerator {
 
             }
         }catch(Exception e){
+            consumido = "";
+            for (int b = 0;b+i<parts.length;b++){
+                consumido += " "+ parts[b+i];
+            }
             System.out.println("La entrada no pudo parsearse.");
-            System.out.println("Se parseo hasta: " + input.substring(0,i));
-            System.out.println("Faltó parsear: " + input.substring(i));
+            System.out.println("Se parseo hasta: " + actualString);
+            System.out.println("Faltó parsear: " + consumido);
             
         }
     }
@@ -729,40 +753,52 @@ public class ParserSLRGenerator {
     res += 
          "\t"+"public void procesoParseo(String input){"+"\n"+
           "\t"+ "\t"+"imprimirTabla();"+"\n"+
-         "\t"+ "\t"+"input += \"$\";"+"\n"+
+         "\t"+ "\t"+"input += \" $\";"+"\n"+
          "\t"+ "\t"+"Stack estados = new Stack();"+"\n"+
          "\t"+ "\t"+"estados.push(0);"+"\n"+
          "\t"+ "\t"+"int i = 0;"+"\n"+
          "\t"+ "\t"+"boolean Goto = false;"+"\n"+
+         "\t"+ "\t"+"String[] parts = input.split(\" \");"+"\n"+
+         "\t"+ "\t"+"ItemTablaParseo encontrado = null;"+"\n"+
+         "\t"+ "\t"+"String consumido = \"\";"+"\n"+
+         "\t"+ "\t"+"int cantParts = parts.length;"+"\n"+
+         "\t"+ "\t"+"String actualString =\"\";"+"\n"+
          "\t"+ "\t"+"try{"+"\n"+
          "\t"+"\t"+ "\t"+"while(true){"+"\n"+
-             "\t"+"\t"+ "\t"+ "\t"+"Character ch = input.charAt(i);"+"\n"+
-             "\t"+"\t"+ "\t"+ "\t"+"while (!SLR.getAlfabeto().contains(ch)){//si i llega al input.length() significa que no pertenece al alfabeto"+"\n"+
-                    "\t"+"\t"+"\t"+"\t"+"\t"+"i++;"+"\n"+
-                    "\t"+"\t"+"\t"+"\t"+"\t"+ "if (i != input.length())"+"\n"+
-                    "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"ch = input.charAt(i);"+"\n"+
-                    "\t"+"\t"+"\t"+"\t"+"\t"+ "else"+"\n"+
-                    "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"break;"+"\n"+
-                    
-            "\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+             "\t"+"\t"+ "\t"+ "\t"+"String ch = parts[i];"+"\n"+
+        
+
             "\t"+ "\t"+ "\t"+ "\t"+"int actual = (int)estados.peek();"+"\n"+
-             "\t"+"\t"+ "\t"+ "\t"+"ItemTablaParseo encontrado = buscarItem(ch.toString(),actual);"+"\n"+
+             "\t"+ "\t"+ "\t"+ "\t"+"if (!Goto)"+"\n"+
+                    "\t"+ "\t"+ "\t"+ "\t"+"\t"+"encontrado = buscarItem(ch,actual);"+"\n"+
+
+             
              "\t"+"\t"+ "\t"+ "\t"+"String op = (String)encontrado.getOperacion();"+"\n"+
              "\t"+"\t"+ "\t"+ "\t"+"if (op.equals(\"r\"))"+"\n"+
                  "\t"+"\t"+ "\t"+ "\t"+ "\t"+"op = \"reduce\";"+"\n"+
              "\t"+"\t"+ "\t"+ "\t"+"if (Goto)"+"\n"+
                  "\t"+"\t"+ "\t"+ "\t"+ "\t"+"op =\"goto\";"+"\n"+
-              "\t"+"\t"+"\t"+ "\t"+"System.out.format(\"%32s%10s%10s\", estados, input.substring(i),op);"+"\n"+
+              "\t"+"\t"+"\t"+ "\t"+"System.out.format(\"%32s%10s%10s\", estados, consumido,op+encontrado.getNextEstado());"+"\n"+
              "\t"+"\t"+ "\t"+ "\t"+"System.out.println(\"\");"+"\n"+
             
             //op += encontrado.getNextEstado();
             
             "\t"+"\t"+"\t"+"\t"+ "if (encontrado.getOperacion().equals(\"shift\")){"+"\n"+
                 "\t"+"\t"+"\t"+"\t"+"\t"+"i++;"+"\n"+
+                 "\t"+"\t"+"\t"+"\t"+"\t"+"actualString += parts[i];"+"\n"+
+                 "\t"+"\t"+"\t"+"\t"+"\t"+"consumido = \"\";"+"\n"+
+                    "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"for (int b = 0;b+i<parts.length;b++){"+"\n"+
+                       "\t"+"\t"+ "\t"+"\t"+"\t"+"\t"+"\t"+"consumido += \" \"+ parts[b+i];"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"\t"+"}"+"\n"+
                 "\t"+"\t"+"\t"+"\t"+"\t"+"estados.push(encontrado.getNextEstado());"+"\n"+
             "\t"+"\t"+"\t"+"\t"+"}"+"\n"+
             "\t"+"\t"+"\t"+"\t"+"else if (encontrado.getOperacion().equals(\"r\")&&!Goto){"+"\n"+
-                "\t"+"\t"+"\t"+"\t"+"int cantidad = producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll(\"\\\\s\", \"\").length();"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"int cantidad = producciones.get((int)encontrado.getNextEstado()).getCuerpo().split(\" \").length;"+"\n"+
+                 "\t"+"\t"+"\t"+"\t"+"if ( producciones.get((int)encontrado.getNextEstado()).getCuerpo().replaceAll(\"\\\\s\", \"\").isEmpty()){"+"\n"+
+                        "\t"+"\t"+"\t"+"\t"+"\t"+"cantidad--;"+"\n"+
+                        
+                    "\t"+"\t"+"\t"+"\t"+"}"+"\n"+
+
                 "\t"+"\t"+"\t"+"\t"+"while(cantidad>0){"+"\n"+
                     "\t"+"\t"+"\t"+"\t"+"\t"+"estados.pop();"+"\n"+
                     "\t"+"\t"+"\t"+"\t"+"\t"+"cantidad--;"+"\n"+
@@ -793,8 +829,12 @@ public class ParserSLRGenerator {
             
         "\t"+"\t"+"\t"+"}"+"\n"+
         "\t"+"\t"+"}catch(Exception e){"+"\n"+
+            "\t"+"\t"+"\t"+"\t"+"\t"+"\t"+"consumido = \"\";"+"\n"+
+            "\t"+"\t"+"\t"+"for (int b = 0;b+i<parts.length;b++){"+"\n"+
+                "\t"+"\t"+"\t"+"\t"+"consumido += \" \"+ parts[b+i];"+"\n"+
+            "\t"+"\t"+"\t"+"}"+"\n"+
             "\t"+"\t"+"\t"+"System.out.println(\"La entrada no pudo parsearse.\");"+"\n"+
-            "\t"+"\t"+"\t"+"System.out.println(\"Se parseo hasta: \" + input.substring(0,i));"+"\n"+
+            "\t"+"\t"+"\t"+"System.out.println(\"Se parseo hasta: \" + actualString);"+"\n"+
             "\t"+"\t"+"\t"+"System.out.println(\"Faltó parsear: \" + input.substring(i));"+"\n"+
        "\t"+"\t"+ "}"+"\n"+
     "\t"+"}"+"\n";
@@ -884,6 +924,7 @@ public class ParserSLRGenerator {
             "**/"+"\n"+
             ""+"\n"+
             ""+"import java.util.Scanner;"+"\n"+
+            "import javax.swing.JOptionPane;"+"\n"+
             ""+"\n"+
             "public class "+this.nombreArchivo+"ParserMain {"+"\n"+
             ""+"\n"
@@ -896,7 +937,7 @@ public class ParserSLRGenerator {
                "\t"+"\t"+"String input;"+"\n"+
                "\t"+"\t"+"Scanner keyboard = new Scanner(System.in);"+"\n"+
                "\t"+"\t"+"System.out.println(\"Ingrese text a parsear\");"+"\n"+
-               "\t"+"\t"+"input = keyboard.next();"+"\n"+
+               "\t"+"\t"+"input = JOptionPane.showInputDialog(\"Ingrese texto a parsear: \");"+"\n"+
                "\t"+"\t" + this.nombreArchivo+"Parser"+" objParser " + "= new " + this.nombreArchivo+"Parser(input);"+"\n"+
                  "\t"+"\t"+ "objParser.procesoParseo(input);"+"\n"+
              
@@ -924,5 +965,16 @@ public class ParserSLRGenerator {
          
       
      
+    }
+     public int indexString(String[] TYPES,String search){
+      
+        int index = -1;
+        for (int i=0;i<TYPES.length;i++) {
+            if (TYPES[i].equals(search)) {
+                index = i;
+                break;
+            }
+        }
+        return index;
     }
 }

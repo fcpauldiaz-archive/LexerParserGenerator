@@ -1,5 +1,5 @@
 /**
- * Nombre del archivo: Ejemplo.java
+ * Nombre del archivo: TresVeintitres.java
  * Universidad del Valle de Guatemala
  * Pablo Diaz 13203 
  * Descripción: Segundo proyecto. Generador de analizador léxico
@@ -15,7 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-public class Ejemplo {
+public class TresVeintitres {
 
 	private Simulacion sim = new Simulacion();
 	private ArrayList<Automata> automatas = new ArrayList();
@@ -27,7 +27,7 @@ public class Ejemplo {
 	private String tk  = "";
 	private Errors errores = new Errors();
 
-	public Ejemplo(HashMap input){
+	public TresVeintitres(HashMap input){
 		this.input=input;
 	
 	}
@@ -42,42 +42,17 @@ public class Ejemplo {
 		automatas.add(temp_0);
 
 		AFNConstruct ThomsonAlgorithim_1 = new AFNConstruct();
-		Automata temp_1 =ThomsonAlgorithim_0.afnSimple("  ");
-		temp_1.setTipo("WHITESPACE");
+		Automata temp_1 =ThomsonAlgorithim_0.afnSimple("+");
+		temp_1.setTipo("sum");
 		automatas.add(temp_1);
 
 		RegexConverter convert_2= new RegexConverter();
-		String regex_2 = convert_2.infixToPostfix("else");
+		String regex_2 = convert_2.infixToPostfix("≤a∫b∫c∫d∫e∫f∫g∫h∫i∫j∫k∫l∫m∫n∫o∫p∫q∫r∫s∫t∫u∫v∫w∫x∫y∫z∫A∫B∫C∫D∫E∫F∫G∫H∫I∫J∫K∫L∫M∫N∫O∫P∫Q∫R∫S∫T∫U∫V∫W∫X∫Y∫Z≥≤≤a∫b∫c∫d∫e∫f∫g∫h∫i∫j∫k∫l∫m∫n∫o∫p∫q∫r∫s∫t∫u∫v∫w∫x∫y∫z∫A∫B∫C∫D∫E∫F∫G∫H∫I∫J∫K∫L∫M∫N∫O∫P∫Q∫R∫S∫T∫U∫V∫W∫X∫Y∫Z≥≥∞");
 		AFNConstruct ThomsonAlgorithim_2 = new AFNConstruct(regex_2);
 		ThomsonAlgorithim_2.construct();
 		Automata temp_2 = ThomsonAlgorithim_2.getAfn();
-		temp_2.setTipo("else");
+		temp_2.setTipo("id");
 		automatas.add(temp_2);
-
-		RegexConverter convert_3= new RegexConverter();
-		String regex_3 = convert_3.infixToPostfix("≤a∫b∫c∫d∫e∫f∫g∫h∫i∫j∫k∫l∫m∫n∫o∫p∫q∫r∫s∫t∫u∫v∫w∫x∫y∫z∫A∫B∫C∫D∫E∫F∫G∫H∫I∫J∫K∫L∫M∫N∫O∫P∫Q∫R∫S∫T∫U∫V∫W∫X∫Y∫Z≥≤≤a∫b∫c∫d∫e∫f∫g∫h∫i∫j∫k∫l∫m∫n∫o∫p∫q∫r∫s∫t∫u∫v∫w∫x∫y∫z∫A∫B∫C∫D∫E∫F∫G∫H∫I∫J∫K∫L∫M∫N∫O∫P∫Q∫R∫S∫T∫U∫V∫W∫X∫Y∫Z≥≥∞");
-		AFNConstruct ThomsonAlgorithim_3 = new AFNConstruct(regex_3);
-		ThomsonAlgorithim_3.construct();
-		Automata temp_3 = ThomsonAlgorithim_3.getAfn();
-		temp_3.setTipo("id");
-		temp_3.setExceptKeywords(true);
-		automatas.add(temp_3);
-
-		RegexConverter convert_4= new RegexConverter();
-		String regex_4 = convert_4.infixToPostfix("while");
-		AFNConstruct ThomsonAlgorithim_4 = new AFNConstruct(regex_4);
-		ThomsonAlgorithim_4.construct();
-		Automata temp_4 = ThomsonAlgorithim_4.getAfn();
-		temp_4.setTipo("while");
-		automatas.add(temp_4);
-
-		RegexConverter convert_5= new RegexConverter();
-		String regex_5 = convert_5.infixToPostfix("if");
-		AFNConstruct ThomsonAlgorithim_5 = new AFNConstruct(regex_5);
-		ThomsonAlgorithim_5.construct();
-		Automata temp_5 = ThomsonAlgorithim_5.getAfn();
-		temp_5.setTipo("if");
-		automatas.add(temp_5);
 	}
 	 /**
  	* Método para revisar que tipo de sub autómata es aceptado por una 

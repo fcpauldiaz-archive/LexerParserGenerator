@@ -38,6 +38,13 @@ public class Produccion<T> implements Serializable{
         this.cuerpo = cuerpo;
         this.item = item.clonar();
     }
+
+    public Produccion(T cabeza, T cuerpo, Item item, T lookahead) {
+        this.cabeza = cabeza;
+        this.cuerpo = cuerpo;
+        this.item = item;
+        this.lookahead = lookahead;
+    }
     
     
 
@@ -87,6 +94,10 @@ public class Produccion<T> implements Serializable{
         if (!Objects.equals(this.item, other.item)) {
             return false;
         }
+        
+        if (!Objects.equals(this.lookahead, other.lookahead)) {
+            return false;
+        }
         return true;
     }
 
@@ -102,15 +113,15 @@ public class Produccion<T> implements Serializable{
     }
     
     public Produccion clonar(){
-        return new Produccion(getCabeza(),getCuerpo(),getItem());
+        return new Produccion(getCabeza(),getCuerpo(),getItem().clonar(),getLookahead());
     }
     
     public boolean isRecursivaIzquierda(){
         String[] parts = cuerpo.toString().split(" ");
         return cabeza.toString().trim().equals(parts[0].trim());
     }
-    
-     public T getLookahead() {
+
+    public T getLookahead() {
         return lookahead;
     }
 
@@ -122,21 +133,25 @@ public class Produccion<T> implements Serializable{
     
     @Override
     public String toString() {
-        return cabeza + " => " + cuerpoItem();
+        if (lookahead == null)
+            return cabeza + " => " + cuerpoItem();
+        return cabeza + " => " + cuerpoItem()+":"+lookahead;
     }
     
     public String cuerpoItem(){
         String returnString = "";
-        for (int i = 0;i<cuerpo.toString().replaceAll("\\s", "").length();i++){
-            Character ch = cuerpo.toString().replaceAll("\\s", "").charAt(i);
-            if (i == (int)item.getPosicion()){
-                returnString += "•";
+        String[] parts = this.cuerpo.toString().split(" ");
+        for (int i = 0;i<parts.length;i++){
+            if (i == (int)item.getPosicion())
+                    returnString += "•";
+            if (!parts[i].isEmpty()){
+                returnString += parts[i].replace("\\s", "") + " ";
+               
             }
-            returnString += ch;
+            
         }
-       
         if (cuerpo.toString().length()-countSpaces(cuerpo.toString())==(int)item.getPosicion())
-            returnString += "•";
+            returnString = cuerpo.toString()+"•";
         
         return returnString;
     }
